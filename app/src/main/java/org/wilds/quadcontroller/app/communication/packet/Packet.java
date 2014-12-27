@@ -11,6 +11,7 @@ public abstract class Packet {
     public static final String TYPE_MOTION = "rcinput";
     public static final String TYPE_HEARTBEAT = "heartbeat";
     public static final String TYPE_TEST_MOTOR = "tm";
+    public static final String TYPE_QUERY_STATUS = "querystatus";
 
     protected String type;
 

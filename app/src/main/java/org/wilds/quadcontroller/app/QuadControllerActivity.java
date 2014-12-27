@@ -39,6 +39,7 @@ public class QuadControllerActivity extends Activity {
 
     protected long lastSend = 0;
 
+    protected Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +93,20 @@ public class QuadControllerActivity extends Activity {
                     InetAddress quadcopter = (InetAddress) message;
                     Log.d("QuadController", quadcopter.getHostAddress());
                     protocol.connectToQuadcopter(quadcopter.getHostAddress());
+                }
+                else if (type == Packet.TYPE_QUERY_STATUS) {
+                    String values = (String) message;
+                    final String data[] = values.split(" ");
+                    if (!data[0].equals("status")) {
+                        System.err.printf("Invalid response from quadcopter: %s", data[0]);
+                    } else {
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                overlayView.setData(throttle, Float.parseFloat(data[1]), Float.parseFloat(data[2]), Float.parseFloat(data[3]), Integer.parseInt(data[5]), Integer.parseInt(data[4]));
+                            }
+                        });
+                    }
                 }
             }
         });
@@ -177,11 +192,7 @@ public class QuadControllerActivity extends Activity {
         } else {
             mHandler.postDelayed(mHandlerTask, 80);
         }
-        // TEST
-        overlayView.setData(throttle, yaw, roll, pitch, throttle*10 + (int) (Math.random()*10));
     }
-
-    Handler mHandler = new Handler();
 
     Runnable mHandlerTask = new Runnable()
     {

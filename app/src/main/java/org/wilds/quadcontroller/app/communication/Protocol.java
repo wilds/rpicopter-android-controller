@@ -12,4 +12,8 @@ public interface Protocol {
     public boolean sendPacket(Packet packet);
     public void setOnReceiveListener(OnReceiveListener listener);
     public void close();
+    public void startQueryStatus();
+    public void stopQueryStatus();
+    public void startHeartBeat();
+    public void stopHeartBeat();
 }

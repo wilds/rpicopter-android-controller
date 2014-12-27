@@ -19,6 +19,7 @@ public class OverlayView extends View {
     protected int roll = 0;     //degree
     protected int pitch = 0;    //degree
     protected int altitude = 0; //cm
+    protected int altitude_target = 0; //cm
 
     protected static final float PITCH_TRANSLATE_FACTOR = 15.0f;     // from degree to dpi
     protected static final float PITCH_STEP = PITCH_TRANSLATE_FACTOR * 5;
@@ -68,15 +69,28 @@ public class OverlayView extends View {
         paintBigText.setStyle(Paint.Style.STROKE);
     }
 
-    public void setData(int throttle, int yaw, int roll, int pitch, int altitude) {
+    public void setData(int throttle, int yaw, int pitch,  int roll, int altitude, int altitude_target) {
         this.throttle = throttle;
-        this.yaw = yaw;     // TODO convert in degree
-        this.roll = roll;
+        this.yaw = yaw;
         this.pitch = pitch;
+        this.roll = roll;
         this.altitude = altitude;
+        this.altitude_target = altitude_target;
         this.invalidate();
     }
 
+    public void setData(int throttle, float yaw, float roll, float pitch, int altitude, int altitude_target) {
+        this.throttle = throttle;
+
+        // convert in degree
+        this.yaw = (int) (yaw / 180 * Math.PI);
+        this.pitch = (int) (pitch / 180 * Math.PI);
+        this.roll = (int) (roll / 180 * Math.PI);
+
+        this.altitude = altitude;
+        this.altitude_target = altitude_target;
+        this.invalidate();
+    }
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -91,10 +105,10 @@ public class OverlayView extends View {
 
 
         // Throttle
-        drawIndicator(canvas, paddingLeft, contentHeight * 2 / 10, contentWidth * 1 / 20, contentHeight * 6 / 10, THROTTLE_STEPS, THROTTLE_STEP_VALUE, THROTTLE_STEPS_DISPLAY_VALUE, throttle, paint, paintBigText, false);
+        drawIndicator(canvas, paddingLeft, contentHeight * 2 / 10, contentWidth * 1 / 20, contentHeight * 6 / 10, THROTTLE_STEPS, THROTTLE_STEP_VALUE, THROTTLE_STEPS_DISPLAY_VALUE, throttle, paint, paintBigText, false, -1);
 
         // Altitude
-        drawIndicator(canvas, paddingLeft + contentWidth * 19 / 20, contentHeight * 2 / 10, contentWidth * 1 / 20, contentHeight * 6 / 10, ALTITUDE_STEPS, ALTITUDE_STEP_VALUE, ALTITUDE_STEPS_DISPLAY_VALUE, altitude, paint, paintBigText, true);
+        drawIndicator(canvas, paddingLeft + contentWidth * 19 / 20, contentHeight * 2 / 10, contentWidth * 1 / 20, contentHeight * 6 / 10, ALTITUDE_STEPS, ALTITUDE_STEP_VALUE, ALTITUDE_STEPS_DISPLAY_VALUE, altitude, paint, paintBigText, true, altitude_target);
 
         paint.setTextAlign(Paint.Align.CENTER);
 
@@ -121,7 +135,7 @@ public class OverlayView extends View {
         }
     }
 
-    protected void drawIndicator(Canvas canvas, int offsetX, int offsetY, int width, int height, int stepCount, int stepValue, int stepDisplay, int value, Paint paint, Paint paintBigText, boolean flip) {
+    protected void drawIndicator(Canvas canvas, int offsetX, int offsetY, int width, int height, int stepCount, int stepValue, int stepDisplay, int value, Paint paint, Paint paintBigText, boolean flip, int target) {
         // vertical indicator
         Path path = new Path();
         if (!flip) {
@@ -139,6 +153,7 @@ public class OverlayView extends View {
         canvas.drawPath(path, paint);
 
         // steps
+        // TODO target
         int step_distance = height / stepCount;
         float thr_off = (float) (value % stepValue) / stepValue;
         int startval = (int) Math.floor(value / stepValue) * stepValue - (stepCount / 2) * stepValue;
