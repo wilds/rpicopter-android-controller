@@ -9,7 +9,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.VideoView;
 
 import org.wilds.quadcontroller.app.communication.OnReceiveListener;
@@ -28,11 +27,10 @@ import java.net.InetAddress;
  */
 public class QuadControllerActivity extends Activity {
 
-    protected static Protocol protocol = new UDPProtocol(58000 /*, 58100*/);
+    protected static Protocol protocol = new UDPProtocol(1032 /*, 58100*/);
 
-    TextView txtX1, txtY1;
-    TextView txtX2, txtY2;
-    DualJoystickView joystick;
+    protected DualJoystickView joystick;
+    protected OverlayView overlayView;
 
     protected int throttle = 6;
     protected int yaw = 0;
@@ -62,11 +60,7 @@ public class QuadControllerActivity extends Activity {
         */
         // END TEST
 
-        txtX1 = (TextView) findViewById(R.id.TextViewX1);
-        txtY1 = (TextView) findViewById(R.id.TextViewY1);
-
-        txtX2 = (TextView) findViewById(R.id.TextViewX2);
-        txtY2 = (TextView) findViewById(R.id.TextViewY2);
+        overlayView = (OverlayView) findViewById(R.id.overlay_view);
 
         joystick = (DualJoystickView) findViewById(R.id.dualjoystickView);
 
@@ -79,7 +73,6 @@ public class QuadControllerActivity extends Activity {
             @Override
             public void onClick(View view) {
                 protocol.searchForQuadcopter();
-                //protocol.connectToQuadcopter("192.168.11.133");
             }
         });
 
@@ -118,27 +111,18 @@ public class QuadControllerActivity extends Activity {
         public void OnMoved(int pan, int tilt) {
             throttle = tilt + 50;
             yaw = pan;
-
-            txtX1.setText(Integer.toString(yaw));
-            txtY1.setText(Integer.toString(throttle));
-
             sendMotionPacket();
         }
 
         @Override
         public void OnReleased() {
-            txtX1.setText("released");
-            txtY1.setText("released");
+
         }
 
         public void OnReturnedToCenter() {
             yaw = 0;
-            //txtX1.setText("stopped");
-            //txtY1.setText("stopped");
             sendMotionPacket();
         }
-
-        ;
     };
 
     private JoystickMovedListener _listenerRight = new JoystickMovedListener() {
@@ -147,28 +131,19 @@ public class QuadControllerActivity extends Activity {
         public void OnMoved(int pan, int tilt) {
             pitch = tilt;
             roll = pan;
-
-            txtX2.setText(Integer.toString(pan));
-            txtY2.setText(Integer.toString(tilt));
-
             sendMotionPacket();
         }
 
         @Override
         public void OnReleased() {
-            txtX2.setText("released");
-            txtY2.setText("released");
+
         }
 
         public void OnReturnedToCenter() {
             pitch = 0;
             roll = 0;
-            //txtX2.setText("stopped");
-            //txtY2.setText("stopped");
             sendMotionPacket();
         }
-
-        ;
     };
 
     @Override
@@ -202,6 +177,8 @@ public class QuadControllerActivity extends Activity {
         } else {
             mHandler.postDelayed(mHandlerTask, 80);
         }
+        // TEST
+        overlayView.setData(throttle, yaw, roll, pitch, throttle*10 + (int) (Math.random()*10));
     }
 
     Handler mHandler = new Handler();
