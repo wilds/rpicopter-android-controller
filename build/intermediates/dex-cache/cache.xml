@@ -9,6 +9,20 @@
         <dex dex="C:\Users\Wilds\Desktop\pi-copter\remote_controller\app\build\intermediates\pre-dexed\debug\support-annotations-21.0.3-561cac407d6ff681a9c6ce58e8dcd5b37f841de5.jar" />
     </item>
     <item
+        jar="C:\Users\Wilds\Desktop\rpicopter_android_controller\app\build\intermediates\exploded-aar\rpicopter_android_controller\colorpicker\unspecified\classes.jar"
+        jumboMode="false"
+        revision="21.1.0"
+        sha1="f75a7a1f428a01137decb948296847fb1edf45fe">
+        <dex dex="C:\Users\Wilds\Desktop\rpicopter_android_controller\app\build\intermediates\pre-dexed\debug\classes-97416b900b47a33af0a6cb84192d94ccbddb44d0.jar" />
+    </item>
+    <item
+        jar="C:\Users\Wilds\Desktop\rpicopter_android_controller\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\21.0.3\classes.jar"
+        jumboMode="false"
+        revision="21.1.0"
+        sha1="81d42bf983a8741f4888a6e333e454e4a5e0eeb7">
+        <dex dex="C:\Users\Wilds\Desktop\rpicopter_android_controller\app\build\intermediates\pre-dexed\debug\classes-5d1255f2696ab9b94f36a1c50b20cab21f5a4226.jar" />
+    </item>
+    <item
         jar="C:\Users\Wilds\Desktop\pi-copter\remote_controller\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\libs\internal_impl-21.0.3.jar"
         jumboMode="false"
         revision="21.1.0"
@@ -30,25 +44,18 @@
         <dex dex="C:\Users\Wilds\Desktop\pi-copter\remote_controller\app\build\intermediates\pre-dexed\debug\classes-f804598c635520ba492b7523cf8f0638fc515c10.jar" />
     </item>
     <item
-        jar="C:\Users\Wilds\Desktop\avrminicopter\remote_controller\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\classes.jar"
+        jar="C:\Users\Wilds\Desktop\rpicopter_android_controller\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\classes.jar"
         jumboMode="false"
         revision="21.1.0"
         sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
-        <dex dex="C:\Users\Wilds\Desktop\avrminicopter\remote_controller\app\build\intermediates\pre-dexed\debug\classes-679c9ad848b7954b00dba576fd70d9e0fd83823f.jar" />
+        <dex dex="C:\Users\Wilds\Desktop\rpicopter_android_controller\app\build\intermediates\pre-dexed\debug\classes-c7f47b592248e477f81317132d766a31bfae932d.jar" />
     </item>
     <item
-        jar="C:\Users\Wilds\Desktop\avrminicopter\remote_controller\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\21.0.3\classes.jar"
-        jumboMode="false"
-        revision="21.1.0"
-        sha1="81d42bf983a8741f4888a6e333e454e4a5e0eeb7">
-        <dex dex="C:\Users\Wilds\Desktop\avrminicopter\remote_controller\app\build\intermediates\pre-dexed\debug\classes-f7690d489070adea5ab090592fb36786b271bd96.jar" />
-    </item>
-    <item
-        jar="C:\Users\Wilds\Desktop\avrminicopter\remote_controller\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\libs\internal_impl-21.0.3.jar"
+        jar="C:\Users\Wilds\Desktop\rpicopter_android_controller\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\libs\internal_impl-21.0.3.jar"
         jumboMode="false"
         revision="21.1.0"
         sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
-        <dex dex="C:\Users\Wilds\Desktop\avrminicopter\remote_controller\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-478f008430647c424b5d9469a953f27fcbbe1f31.jar" />
+        <dex dex="C:\Users\Wilds\Desktop\rpicopter_android_controller\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-e7e3969842a525b29332ace73229e74301382967.jar" />
     </item>
 
 </items>

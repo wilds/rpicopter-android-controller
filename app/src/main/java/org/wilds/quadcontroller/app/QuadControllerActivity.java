@@ -2,13 +2,14 @@ package org.wilds.quadcontroller.app;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import org.wilds.quadcontroller.app.communication.OnReceiveListener;
@@ -16,7 +17,6 @@ import org.wilds.quadcontroller.app.communication.Protocol;
 import org.wilds.quadcontroller.app.communication.UDPProtocol;
 import org.wilds.quadcontroller.app.communication.packet.MotionPacket;
 import org.wilds.quadcontroller.app.communication.packet.Packet;
-import org.wilds.quadcontroller.app.communication.packet.TestMotorPacket;
 import org.wilds.quadcontroller.app.joystick.DualJoystickView;
 import org.wilds.quadcontroller.app.joystick.JoystickMovedListener;
 
@@ -25,9 +25,10 @@ import java.net.InetAddress;
 /**
  * Created by Wilds on 13/04/2014.
  */
-public class QuadControllerActivity extends Activity {
+public class QuadControllerActivity extends Activity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    protected static Protocol protocol = new UDPProtocol(1032 /*, 58100*/);
+    protected static Protocol protocol;
+    protected int udpPort = 1032;
 
     protected DualJoystickView joystick;
     protected OverlayView overlayView;
@@ -45,6 +46,15 @@ public class QuadControllerActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dualjoystick);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+        udpPort = Integer.parseInt(sharedPreferences.getString("udp_port", "1032"));
+        if (protocol == null) {
+            protocol = new UDPProtocol(udpPort /*, 58100*/);
+            Toast.makeText(this.getApplicationContext(), R.string.info_connect, Toast.LENGTH_LONG).show();
+        }
 
         VideoView v = (VideoView) findViewById(R.id.surface_view);
         // TEST!!!
@@ -69,6 +79,7 @@ public class QuadControllerActivity extends Activity {
         joystick.getLeftStick().setDisableAutoReturnToCenterY(true);
         joystick.getLeftStick().setYAxisInverted(false);
 
+        /*
         Button connect = (Button) findViewById(R.id.buttonConnect);
         connect.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,6 +88,7 @@ public class QuadControllerActivity extends Activity {
             }
         });
 
+
         Button test0 = (Button) findViewById(R.id.buttonTestMotor0);
         test0.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,6 +96,7 @@ public class QuadControllerActivity extends Activity {
                 protocol.sendPacket(new TestMotorPacket(2500, 0, 0, 0));
             }
         });
+        */
 
         protocol.setOnReceiveListener(new OnReceiveListener() {
             @Override
@@ -118,6 +131,12 @@ public class QuadControllerActivity extends Activity {
         ..screen will stay on during this section..
         wl.release();
         */
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if (udpPort != Integer.parseInt(sharedPreferences.getString("udp_port", "1032")))
+            Toast.makeText(this, R.string.need_restart, Toast.LENGTH_LONG).show();
     }
 
     private JoystickMovedListener _listenerLeft = new JoystickMovedListener() {
@@ -170,18 +189,21 @@ public class QuadControllerActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-
-        MenuItem Item = menu.add("PID");
+        getMenuInflater().inflate(R.menu.dual_joystick_view, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getTitle() == "PID") {
-            Intent intent = new Intent(this, PIDActivity.class);
-            startActivity(intent);
+        switch(item.getItemId()) {
+            case R.id.action_connect:
+                protocol.searchForQuadcopter();
+                return true;
+            case R.id.action_settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
         }
-        return true;
+        return super.onOptionsItemSelected(item);
     }
 
     protected void sendMotionPacket() {

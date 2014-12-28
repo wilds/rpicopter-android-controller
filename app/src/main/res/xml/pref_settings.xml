@@ -1,0 +1,80 @@
+
+    <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:picker="http://schemas.android.com/apk/res/org.wilds.quadcontroller.app" >
+
+        <PreferenceCategory android:title="@string/pref_connection_category" >
+            <EditTextPreference
+                android:key="udp_port"
+                android:title="@string/pref_udp_port_title"
+                android:defaultValue="@string/pref_udp_port_value"
+                android:selectAllOnFocus="true"
+                android:inputType="number"
+                android:singleLine="true"
+                android:maxLines="1"
+                android:icon="@android:drawable/ic_menu_upload"/>
+
+            <CheckBoxPreference
+                android:enabled="false"
+                android:key="streaming_enabled"
+                android:title="@string/pref_streaming_enabled_title"
+                android:summary="@string/pref_streaming_enabled_summary"
+                android:defaultValue="true"
+                android:icon="@android:drawable/ic_menu_slideshow"/>
+
+            <EditTextPreference
+                android:enabled="false"
+                android:dependency="streaming_enabled"
+                android:disableDependentsState="false"
+                android:key="tcp_port"
+                android:title="@string/pref_tcp_port_title"
+                android:defaultValue="@string/pref_tcp_port_value"
+                android:selectAllOnFocus="true"
+                android:inputType="number"
+                android:singleLine="true"
+                android:maxLines="1"
+                android:icon="@android:drawable/ic_menu_slideshow"/>
+
+        </PreferenceCategory>
+
+        <PreferenceCategory android:title="@string/pref_hud_category" >
+            <CheckBoxPreference
+                android:key="hud_enabled"
+                android:title="@string/pref_hud_enabled_title"
+                android:summary="@string/pref_hud_enabled_summary"
+                android:defaultValue="true"
+                android:icon="@android:drawable/ic_menu_mapmode"/>
+
+
+            <afzkl.development.colorpickerview.preference.ColorPickerPreference
+                android:dependency="hud_enabled"
+                android:disableDependentsState="false"
+                android:defaultValue="0x645CFF7B"
+                android:key="hud_color"
+                android:summary="@string/pref_hud_color_summary"
+                picker:alphaChannelVisible="true"
+                android:title="@string/pref_hud_color_title"
+                android:icon="@android:drawable/ic_menu_mapmode"/>
+
+        </PreferenceCategory>
+<!--
+        <PreferenceCategory android:title="@string/pref_debug_category" >
+            <Preference
+                android:key="test_motor"
+                android:title="@string/pref_test_motor_title"
+                android:summary="@string/pref_test_motor_summary"
+                android:icon="@android:drawable/ic_menu_manage">
+
+            </Preference>
+        </PreferenceCategory>
+-->
+        <PreferenceCategory android:title="@string/pref_about_category" >
+            <Preference
+                android:key="about"
+                android:title="@string/pref_about_title"
+                android:summary="@string/pref_about_summary"
+                android:defaultValue="true"
+                android:icon="@android:drawable/ic_menu_info_details"/>
+
+
+        </PreferenceCategory>
+</PreferenceScreen>

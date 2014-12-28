@@ -1,15 +1,18 @@
 package org.wilds.quadcontroller.app;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.View;
 
-public class OverlayView extends View {
+public class OverlayView extends View implements SharedPreferences.OnSharedPreferenceChangeListener {
+
+    private boolean hudEnable = true;
 
     private Paint paint;
     private Paint paintBigText;
@@ -48,9 +51,15 @@ public class OverlayView extends View {
     }
 
     private void init(AttributeSet attrs, int defStyle) {
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+        hudEnable = sharedPreferences.getBoolean("hud_enable", true);
+        int color = sharedPreferences.getInt("hud_color", 0x645CFF7B);
+
         paint = new Paint();
-        paint.setColor(Color.GREEN);
-        paint.setAlpha(100);
+        paint.setColor(color);
         paint.setAntiAlias(true);
         paint.setFlags(Paint.ANTI_ALIAS_FLAG);
         paint.setTextAlign(Paint.Align.CENTER);
@@ -59,14 +68,22 @@ public class OverlayView extends View {
         paint.setStyle(Paint.Style.STROKE);
 
         paintBigText = new Paint();
-        paintBigText.setColor(Color.GREEN);
-        paintBigText.setAlpha(100);
+        paintBigText.setColor(color);
         paintBigText.setAntiAlias(true);
         paintBigText.setFlags(Paint.ANTI_ALIAS_FLAG);
         paintBigText.setTextAlign(Paint.Align.CENTER);
         paintBigText.setTextSize(18);
         paintBigText.setStrokeWidth(2);
         paintBigText.setStyle(Paint.Style.STROKE);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        hudEnable = sharedPreferences.getBoolean("hud_enabled", true);
+        int color = sharedPreferences.getInt("hud_color", 0x645CFF7B);
+        paint.setColor(color);
+        paintBigText.setColor(color);
+        this.invalidate();
     }
 
     public void setData(int throttle, int yaw, int pitch,  int roll, int altitude, int altitude_target) {
@@ -91,46 +108,49 @@ public class OverlayView extends View {
         this.altitude_target = altitude_target;
         this.invalidate();
     }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        int paddingLeft = getPaddingLeft();
-        int paddingTop = getPaddingTop();
-        int paddingRight = getPaddingRight();
-        int paddingBottom = getPaddingBottom();
+        if (hudEnable) {
+            int paddingLeft = getPaddingLeft();
+            int paddingTop = getPaddingTop();
+            int paddingRight = getPaddingRight();
+            int paddingBottom = getPaddingBottom();
 
-        int contentWidth = getWidth() - paddingLeft - paddingRight;
-        int contentHeight = getHeight() - paddingTop - paddingBottom;
-
-
-        // Throttle
-        drawIndicator(canvas, paddingLeft, contentHeight * 2 / 10, contentWidth * 1 / 20, contentHeight * 6 / 10, THROTTLE_STEPS, THROTTLE_STEP_VALUE, THROTTLE_STEPS_DISPLAY_VALUE, throttle, paint, paintBigText, false, -1);
-
-        // Altitude
-        drawIndicator(canvas, paddingLeft + contentWidth * 19 / 20, contentHeight * 2 / 10, contentWidth * 1 / 20, contentHeight * 6 / 10, ALTITUDE_STEPS, ALTITUDE_STEP_VALUE, ALTITUDE_STEPS_DISPLAY_VALUE, altitude, paint, paintBigText, true, altitude_target);
-
-        paint.setTextAlign(Paint.Align.CENTER);
-
-        // Pitch and roll
-        int offsetx = contentHeight / 2;
-        canvas.rotate(roll, paddingLeft + contentWidth / 2, paddingTop + contentHeight / 2);
-        canvas.translate(0, -pitch * PITCH_TRANSLATE_FACTOR);
-        canvas.drawLine(paddingLeft + contentWidth * 2 / 10, offsetx, paddingLeft + contentWidth * 8 / 10, offsetx, paint); // main
-        for (int i = -36; i < 36; ++i) {
-            if (i != 0) {
-                String text = "" + (i * 5);
-                Rect rect = new Rect();
-                paint.getTextBounds(text, 0, text.length(), rect);
-                canvas.drawText(text, paddingLeft + contentWidth * 7 / 20 - rect.width(), offsetx - i * PITCH_STEP + rect.height() / 2, paint);
-                canvas.drawText(text, paddingLeft + contentWidth * 13 / 20 + rect.width(), offsetx - i * PITCH_STEP + rect.height() / 2, paint);
+            int contentWidth = getWidth() - paddingLeft - paddingRight;
+            int contentHeight = getHeight() - paddingTop - paddingBottom;
 
 
-                canvas.drawLine(paddingLeft + contentWidth * 7 / 20, offsetx - i * PITCH_STEP + contentWidth * 2 / 20 / 5, paddingLeft + contentWidth * 7 / 20, offsetx - i * PITCH_STEP, paint);
-                canvas.drawLine(paddingLeft + contentWidth * 7 / 20, offsetx - i * PITCH_STEP, paddingLeft + contentWidth * 9 / 20, offsetx - i * PITCH_STEP, paint);
+            // Throttle
+            drawIndicator(canvas, paddingLeft, contentHeight * 2 / 10, contentWidth * 1 / 20, contentHeight * 6 / 10, THROTTLE_STEPS, THROTTLE_STEP_VALUE, THROTTLE_STEPS_DISPLAY_VALUE, throttle, paint, paintBigText, false, -1);
 
-                canvas.drawLine(paddingLeft + contentWidth * 13 / 20, offsetx - i * PITCH_STEP + contentWidth * 2 / 20 / 5, paddingLeft + contentWidth * 13 / 20, offsetx - i * PITCH_STEP, paint);
-                canvas.drawLine(paddingLeft + contentWidth * 11 / 20, offsetx - i * PITCH_STEP, paddingLeft + contentWidth * 13 / 20, offsetx - i * PITCH_STEP, paint);
+            // Altitude
+            drawIndicator(canvas, paddingLeft + contentWidth * 19 / 20, contentHeight * 2 / 10, contentWidth * 1 / 20, contentHeight * 6 / 10, ALTITUDE_STEPS, ALTITUDE_STEP_VALUE, ALTITUDE_STEPS_DISPLAY_VALUE, altitude, paint, paintBigText, true, altitude_target);
+
+            paint.setTextAlign(Paint.Align.CENTER);
+
+            // Pitch and roll
+            int offsetx = contentHeight / 2;
+            canvas.rotate(roll, paddingLeft + contentWidth / 2, paddingTop + contentHeight / 2);
+            canvas.translate(0, -pitch * PITCH_TRANSLATE_FACTOR);
+            canvas.drawLine(paddingLeft + contentWidth * 2 / 10, offsetx, paddingLeft + contentWidth * 8 / 10, offsetx, paint); // main
+            for (int i = -36; i < 36; ++i) {
+                if (i != 0) {
+                    String text = "" + (i * 5);
+                    Rect rect = new Rect();
+                    paint.getTextBounds(text, 0, text.length(), rect);
+                    canvas.drawText(text, paddingLeft + contentWidth * 7 / 20 - rect.width(), offsetx - i * PITCH_STEP + rect.height() / 2, paint);
+                    canvas.drawText(text, paddingLeft + contentWidth * 13 / 20 + rect.width(), offsetx - i * PITCH_STEP + rect.height() / 2, paint);
+
+
+                    canvas.drawLine(paddingLeft + contentWidth * 7 / 20, offsetx - i * PITCH_STEP + contentWidth * 2 / 20 / 5, paddingLeft + contentWidth * 7 / 20, offsetx - i * PITCH_STEP, paint);
+                    canvas.drawLine(paddingLeft + contentWidth * 7 / 20, offsetx - i * PITCH_STEP, paddingLeft + contentWidth * 9 / 20, offsetx - i * PITCH_STEP, paint);
+
+                    canvas.drawLine(paddingLeft + contentWidth * 13 / 20, offsetx - i * PITCH_STEP + contentWidth * 2 / 20 / 5, paddingLeft + contentWidth * 13 / 20, offsetx - i * PITCH_STEP, paint);
+                    canvas.drawLine(paddingLeft + contentWidth * 11 / 20, offsetx - i * PITCH_STEP, paddingLeft + contentWidth * 13 / 20, offsetx - i * PITCH_STEP, paint);
+                }
             }
         }
     }

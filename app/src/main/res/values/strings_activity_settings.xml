@@ -1,0 +1,24 @@
+<resources>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+    <string name="pref_about_title">About</string>
+    <string name="pref_about_category">About</string>
+    <string name="pref_hud_enabled_summary"></string>
+    <string name="pref_hud_enabled_title">HUD</string>
+    <string name="pref_hud_category">HUD</string>
+    <string name="pref_connection_category">Connection</string>
+    <string name="pref_udp_port_title">UDP port</string>
+    <string name="pref_udp_port_value">1032</string>
+    <string name="pref_streaming_enabled_title">Show video</string>
+    <string name="pref_tcp_port_title">TCP port</string>
+    <string name="pref_tcp_port_value">8888</string>
+    <string name="pref_streaming_enabled_summary"> </string>
+    <string name="pref_about_summary"> </string>
+    <string name="pref_test_motor_summary"> </string>
+    <string name="pref_test_motor_title">Test motor</string>
+    <string name="pref_debug_category">Test and debug</string>
+    <string name="pref_hud_color_title">Color</string>
+    <string name="pref_hud_color_summary"></string>
+
+</resources>
