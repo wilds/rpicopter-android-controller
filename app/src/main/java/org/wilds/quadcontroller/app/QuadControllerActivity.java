@@ -106,6 +106,12 @@ public class QuadControllerActivity extends Activity implements SharedPreference
                     InetAddress quadcopter = (InetAddress) message;
                     Log.d("QuadController", quadcopter.getHostAddress());
                     protocol.connectToQuadcopter(quadcopter.getHostAddress());
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(QuadControllerActivity.this, R.string.connected, Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
                 else if (type == Packet.TYPE_QUERY_STATUS) {
                     String values = (String) message;
@@ -211,6 +217,7 @@ public class QuadControllerActivity extends Activity implements SharedPreference
         if (System.currentTimeMillis() - lastSend > 80) {
             protocol.sendPacket(new MotionPacket(throttle, yaw, pitch, roll));
             lastSend = System.currentTimeMillis();
+            //overlayView.setData(throttle,yaw,pitch,roll,throttle,throttle);
         } else {
             mHandler.postDelayed(mHandlerTask, 80);
         }
