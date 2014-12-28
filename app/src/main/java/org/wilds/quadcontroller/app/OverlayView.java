@@ -100,9 +100,9 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
         this.throttle = throttle;
 
         // convert in degree
-        this.yaw = (int) (yaw / 180 * Math.PI);
-        this.pitch = (int) (pitch / 180 * Math.PI);
-        this.roll = (int) (roll / 180 * Math.PI);
+        this.yaw = (int) (yaw * 180 / Math.PI);
+        this.pitch = (int) (pitch * 180 / Math.PI);
+        this.roll = (int) (roll * 180 / Math.PI);
 
         this.altitude = altitude;
         this.altitude_target = altitude_target;
