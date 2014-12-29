@@ -86,7 +86,7 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
         this.invalidate();
     }
 
-    public void setData(int throttle, int yaw, int pitch,  int roll, int altitude, int altitude_target) {
+    public void setData(int throttle, int yaw, int pitch, int roll, int altitude, int altitude_target) {
         this.throttle = throttle;
         this.yaw = yaw;
         this.pitch = pitch;
@@ -96,7 +96,7 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
         this.invalidate();
     }
 
-    public void setData(int throttle, float yaw, float roll, float pitch, int altitude, int altitude_target) {
+    public void setData(int throttle, float yaw, float pitch, float roll, int altitude, int altitude_target) {
         this.throttle = throttle;
 
         // convert in degree
