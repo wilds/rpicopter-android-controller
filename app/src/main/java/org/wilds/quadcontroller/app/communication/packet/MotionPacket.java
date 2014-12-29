@@ -15,6 +15,7 @@ public class MotionPacket extends Packet {
     }
 
     public MotionPacket(int throttle, int yaw, int pitch, int roll) {
+        super();
         this.setType(TYPE_MOTION);
         setThrottle(throttle);
         setYaw(yaw);
@@ -57,6 +58,6 @@ public class MotionPacket extends Packet {
 
     @Override
     public String toString() {
-        return TYPE_MOTION + " " + thr + " " + yaw + " " + pitch + " " + roll;
+        return super.toString() + " " + thr + " " + yaw + " " + pitch + " " + roll;
     }
 }

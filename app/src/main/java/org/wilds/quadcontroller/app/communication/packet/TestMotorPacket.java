@@ -11,6 +11,7 @@ public class TestMotorPacket extends Packet {
     protected int m3;
 
     public TestMotorPacket(int m0, int m1, int m2, int m3) {
+        super();
         this.setType(TYPE_TEST_MOTOR);
         this.m0 = m0;
         this.m1 = m1;
@@ -57,6 +58,6 @@ public class TestMotorPacket extends Packet {
 
     @Override
     public String toString() {
-        return TYPE_TEST_MOTOR +" "+ m0 + " "+ m1 + " "+ m2 + " "+ m3;
+        return super.toString() +" "+ m0 + " "+ m1 + " "+ m2 + " "+ m3;
     }
 }

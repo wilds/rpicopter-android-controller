@@ -14,6 +14,7 @@ public class VideoPacket extends Packet {
     protected Command command;
 
     public VideoPacket(Command command) {
+        super();
         this.setType(TYPE_VIDEO);
         setCommand(command);
     }
@@ -33,6 +34,6 @@ public class VideoPacket extends Packet {
 
     @Override
     public String toString() {
-        return getType() + " " + command.name();
+        return super.toString() + " " + command.name();
     }
 }

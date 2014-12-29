@@ -13,9 +13,10 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -34,25 +35,18 @@ public class UDPProtocol implements Protocol {
     protected InetAddress sendTo;
 
     private final BlockingQueue<Runnable> mQueue = new LinkedBlockingQueue<Runnable>();
-    protected ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(5, 100,  1, TimeUnit.SECONDS, mQueue);
+    protected ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(5, 10, 1, TimeUnit.SECONDS, mQueue);
 
-    // Listening vars
-    /*
-    protected Thread listenThread;
-    protected int listenPort = 57001;
-    protected boolean listening = true;
-    */
+    protected Map<Long, Packet> waitingForResponse = new ConcurrentHashMap<>();
 
-    protected Runnable mHandlerTaskHeartBeat = new Runnable()
-    {
+    protected Runnable mHandlerTaskHeartBeat = new Runnable() {
         @Override
         public void run() {
             sendPacket(new HeartBeatPacket());
         }
     };
 
-    protected Runnable mHandlerTaskQueryStatus = new Runnable()
-    {
+    protected Runnable mHandlerTaskQueryStatus = new Runnable() {
         @Override
         public void run() {
             sendPacket(new QueryStatusPacket());
@@ -64,16 +58,11 @@ public class UDPProtocol implements Protocol {
 
     public UDPProtocol(int sendPort /*, int listenPort*/) {
         this.sendPort = sendPort;
-        //this.listenPort = listenPort;
-
         try {
             sendSocket = new DatagramSocket(sendPort);
-            //sendSocket.setSoTimeout(5000);
         } catch (SocketException e) {
             e.printStackTrace();
         }
-
-//        startListening();
     }
 
     @Override
@@ -81,71 +70,68 @@ public class UDPProtocol implements Protocol {
         this.onReceiveListener = listener;
     }
 
-
-    /*
     protected void startListening() {
-        listenThread = new Thread(new Runnable() {
+        Thread listenThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                while (isConnected()) {
+                    byte[] message = new byte[1024];
+                    DatagramPacket p = new DatagramPacket(message, message.length);
+                    try {
+                        sendSocket.receive(p);
 
-                try {
-                    DatagramSocket sock = new DatagramSocket(listenPort);
-                    while (listening) {
-                        byte[] message = new byte[1500];
-                        DatagramPacket p = new DatagramPacket(message, message.length);
-                        sock.receive(p);
+                        if (isFakePacket(p)) {
+                            Log.d("LOGGER", "STOP listening");
+                            return;
+                        }
+
                         String text = new String(message, 0, p.getLength());
+                        String par[] = text.split(" ");
 
-                        //TODO handle quadcopter response at hello packet
+                        if (par.length < 2) {
+                            Log.e("UDPProtocol", "invalid response " + text);
+                            continue;
+                        }
 
-                        onReceiveListener.onReceive(text);
+                        Packet packet = waitingForResponse.remove(Long.parseLong(par[1]));
+
+                        if (packet == null) {
+                            Log.e("UDPProtocol", "not waiting for response");
+                            continue;
+                        }
+
+                        //TODO handle quadcopter response
+                        if (onReceiveListener != null)
+                            onReceiveListener.onReceive(packet.getType(), text);
+                    } catch (IOException ex) {
+
                     }
-                    sock.close();
-
-                } catch (SocketException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
-
             }
-
         });
         listenThread.start();
     }
-*/
 
     @Override
-    public boolean sendPacket(final Packet packet) { // TODO convertire in async task
+    public boolean sendPacket(final Packet packet) {
         if (!isConnected())
             return false;
+
         poolExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 try {
+
+                    if (packet.waitReply()) {
+                        waitingForResponse.put(packet.getId(), packet);
+                    }
+
                     stopHeartBeat();
                     sendSocket.send(new DatagramPacket(packet.getByte(), packet.getLength(), sendTo, sendPort));
                     startHeartBeat();
 
-                    if (packet.waitReply()) {
-                        byte[] message = new byte[1024];
-                        DatagramPacket p = new DatagramPacket(message, message.length);
-                        try {
-                            sendSocket.setSoTimeout(1000);
-                            sendSocket.receive(p);
-                            String text = new String(message, 0, p.getLength());
-
-                            //TODO handle quadcopter response
-                            if (onReceiveListener != null)
-                                onReceiveListener.onReceive(packet.getType(), text);
-                        } catch (SocketTimeoutException ex) {
-                            System.err.println("TimeOut");
-                        }
-                    }
-                    //return true;
                 } catch (IOException e) {
                     e.printStackTrace();
-                    //return false;
                 }
             }
         });
@@ -153,36 +139,33 @@ public class UDPProtocol implements Protocol {
         return true;
     }
 
+
     @Override
-    public void startHeartBeat()
-    {
+    public void startHeartBeat() {
         //mHandlerTask.run();
         mHandler.postDelayed(mHandlerTaskHeartBeat, INTERVAL_HEARTBEAT);
     }
 
     @Override
-    public void stopHeartBeat()
-    {
+    public void stopHeartBeat() {
         mHandler.removeCallbacks(mHandlerTaskHeartBeat);
     }
 
 
-
-
     @Override
-    public void startQueryStatus()
-    {
+    public void startQueryStatus() {
         mHandlerTaskQueryStatus.run();
     }
 
     @Override
-    public void stopQueryStatus()
-    {
+    public void stopQueryStatus() {
         mHandler.removeCallbacks(mHandlerTaskQueryStatus);
     }
 
     @Override
-    public boolean searchForQuadcopter() {  // TODO convertire in async task
+    public boolean searchForQuadcopter() {
+        if (isConnected())
+            close();
         poolExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -191,32 +174,28 @@ public class UDPProtocol implements Protocol {
                     DatagramPacket broadcast = new DatagramPacket(packet.getByte(), packet.getLength(), InetAddress.getByName(Utils.getBroadcast()), sendPort);
                     sendSocket.setBroadcast(true);
                     sendSocket.send(broadcast);
+
                     long t = System.currentTimeMillis();
                     while (System.currentTimeMillis() - t < 5000) {
                         byte[] message = new byte[1024];
                         DatagramPacket p = new DatagramPacket(message, message.length);
-                        try {
-                            sendSocket.setSoTimeout(10000);
-                            sendSocket.receive(p);
-                            String text = new String(message, 0, p.getLength());
-                            Log.d("LOGGER", "RECEIVED: " + text);
-                            // TODO
-                            if (text.contains("OK")) {
-                                if (onReceiveListener != null)
-                                    onReceiveListener.onReceive(packet.getType(), p.getAddress());
-                            } else if (text.contains("hello")) {
-                            } else if (text.isEmpty() && p.getAddress().equals(InetAddress.getLocalHost())) {
-                                Log.d("LOGGER", "STOP");
-                                return;
-                            }
-                        } catch (SocketTimeoutException ex) {
 
+                        sendSocket.receive(p);
+                        String text = new String(message, 0, p.getLength());
+                        Log.d("LOGGER", "RECEIVED: " + text);
+                        // TODO
+                        if (text.contains("OK")) {
+                            if (onReceiveListener != null)
+                                onReceiveListener.onReceive(packet.getType(), p.getAddress());
+                        } else if (text.contains("hello")) {
+                        } else if (isFakePacket(p)) {
+                            Log.d("LOGGER", "STOP");
+                            onConnected();
+                            return;
                         }
                     }
-                    //return true;
                 } catch (IOException e) {
                     e.printStackTrace();
-                    //return false;
                 }
             }
         });
@@ -227,14 +206,8 @@ public class UDPProtocol implements Protocol {
     @Override
     public boolean connectToQuadcopter(String id) {
         try {
-            try {
-                sendSocket.send(new DatagramPacket("".getBytes(), 0, InetAddress.getLocalHost(), sendPort));
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            sendFakePacket();
             this.sendTo = InetAddress.getByName(id);
-            startHeartBeat();
-            startQueryStatus();
             return true;
         } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -242,15 +215,44 @@ public class UDPProtocol implements Protocol {
         }
     }
 
+    protected void onConnected() {
+        startHeartBeat();
+        startQueryStatus();
+        startListening();
+    }
+
     public void close() {
-        //listening = false;
+        sendTo = null;
+        sendFakePacket();   //interrupt receive
         stopHeartBeat();
         stopQueryStatus();
-        sendSocket.close();
+        //sendSocket.close();
     }
 
     @Override
     public boolean isConnected() {
         return sendTo != null;
+    }
+
+    /* this method is used to send fake packet to self and interrupt receive;*/
+    private void sendFakePacket() {
+        poolExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    sendSocket.send(new DatagramPacket("".getBytes(), 0, InetAddress.getLocalHost(), sendPort));
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private boolean isFakePacket(DatagramPacket p) {
+        try {
+            return p.getLength() == 0 && p.getAddress().equals(InetAddress.getLocalHost());
+        } catch (UnknownHostException e) {
+            return false;
+        }
     }
 }

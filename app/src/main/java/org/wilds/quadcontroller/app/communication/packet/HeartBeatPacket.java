@@ -8,6 +8,7 @@ public class HeartBeatPacket extends Packet {
     protected long timestamp;
 
     public HeartBeatPacket() {
+        super();
         this.setType(TYPE_HEARTBEAT);
         setTimestamp(System.currentTimeMillis());
     }
@@ -27,6 +28,6 @@ public class HeartBeatPacket extends Packet {
 
     @Override
     public String toString() {
-        return TYPE_HEARTBEAT + " " + timestamp;
+        return super.toString() + " " + timestamp;
     }
 }

@@ -6,6 +6,7 @@ package org.wilds.quadcontroller.app.communication.packet;
 public class QueryStatusPacket extends Packet {
 
     public QueryStatusPacket() {
+        super();
         this.setType(TYPE_QUERY_STATUS);
     }
 
@@ -16,6 +17,6 @@ public class QueryStatusPacket extends Packet {
 
     @Override
     public String toString() {
-        return TYPE_QUERY_STATUS;
+        return super.toString();
     }
 }

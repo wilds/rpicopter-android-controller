@@ -15,7 +15,12 @@ public abstract class Packet {
     public static final String TYPE_TAKE_PICTURE = "takepicture";
     public static final String TYPE_VIDEO = "vidsnap";
 
+    protected long id = -1;
     protected String type;
+
+    public Packet() {
+        id = System.nanoTime();
+    }
 
     public String getType() {
         return type;
@@ -25,13 +30,17 @@ public abstract class Packet {
         this.type = type;
     }
 
+    public long getId() {
+        return id;
+    }
+
     public boolean waitReply() {
         return false;
     }
 
     @Override
     public String toString() {
-        return type;
+        return type + " " + id;
     }
 
     public byte[] getByte() { return this.toString().getBytes(); }

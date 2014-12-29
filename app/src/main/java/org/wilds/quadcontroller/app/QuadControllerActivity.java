@@ -42,6 +42,8 @@ public class QuadControllerActivity extends Activity implements SharedPreference
 
     protected Handler mHandler = new Handler();
 
+    protected boolean debugHUD = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,11 +57,12 @@ public class QuadControllerActivity extends Activity implements SharedPreference
             protocol = new UDPProtocol(udpPort /*, 58100*/);
             Toast.makeText(this.getApplicationContext(), R.string.info_connect, Toast.LENGTH_LONG).show();
         }
+        debugHUD = sharedPreferences.getBoolean("debug_hud", false);
 
         VideoView v = (VideoView) findViewById(R.id.surface_view);
         // TEST!!!
         /*
-        v.setVideoPath("http://daily3gp.com/vids/747.3gp");
+        v.setVideoPath("https://r2---sn-4g57kuel.googlevideo.com/videoplayback?ratebypass=yes&ip=93.55.50.131&requiressl=yes&fexp=3300103%2C3300103%2C3300133%2C3300133%2C3300137%2C3300137%2C3300164%2C3300164%2C3310366%2C3310366%2C3310704%2C3310704%2C900225%2C900718%2C912141%2C916645%2C927622%2C932404%2C9405766%2C9405883%2C941004%2C943917%2C947209%2C947218%2C948124%2C948532%2C952302%2C952605%2C952901%2C954807%2C955301%2C957103%2C957105%2C957201%2C959701&id=o-AH5n8wbfF9eElQzfJYaHSsArRwZI1jfDyvwFD_Y17yVF&mime=video%2Fmp4&expire=1419838507&ipbits=0&key=cms1&itag=22&signature=1E52F3763A5AFF497AD7D4EB032C6A3EA090C173.1C38498DA5EE2C09F7432E21143BA22780196074&upn=w0mkMLADuB0&dur=226.139&sver=3&source=youtube&sparams=dur,expire,id,initcwndbps,ip,ipbits,itag,mime,mm,ms,mv,ratebypass,requiressl,source,upn&title=Quadcopter%20Airborne%20Video%20Test.mp4&cpn=9m9s6o5_RSLG2XHx&redirect_counter=1&req_id=6a328ee249dca3ee&cms_redirect=yes&mm=26&ms=tsu&mt=1419816911&mv=m");
         v.start();
         v.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
@@ -122,7 +125,7 @@ public class QuadControllerActivity extends Activity implements SharedPreference
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                overlayView.setData(throttle, Float.parseFloat(data[1]), Float.parseFloat(data[2]), Float.parseFloat(data[3]), Integer.parseInt(data[5]), Integer.parseInt(data[4]));
+                                overlayView.setData(throttle, Float.parseFloat(data[2]), Float.parseFloat(data[3]), Float.parseFloat(data[4]), Integer.parseInt(data[6]), Integer.parseInt(data[5]));
                             }
                         });
                     }
@@ -143,6 +146,7 @@ public class QuadControllerActivity extends Activity implements SharedPreference
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
         if (udpPort != Integer.parseInt(sharedPreferences.getString("udp_port", "1032")))
             Toast.makeText(this, R.string.need_restart, Toast.LENGTH_LONG).show();
+        debugHUD = sharedPreferences.getBoolean("debug_hud", false);
     }
 
     private JoystickMovedListener _listenerLeft = new JoystickMovedListener() {
@@ -217,7 +221,8 @@ public class QuadControllerActivity extends Activity implements SharedPreference
         if (System.currentTimeMillis() - lastSend > 80) {
             protocol.sendPacket(new MotionPacket(throttle, yaw, pitch, roll));
             lastSend = System.currentTimeMillis();
-            //overlayView.setData(throttle,yaw,pitch,roll,throttle,throttle);
+            if (debugHUD)
+                overlayView.setData(throttle, yaw, pitch, roll, throttle * 10 + (int)(Math.random() * 10), -1);
         } else {
             mHandler.postDelayed(mHandlerTask, 80);
         }

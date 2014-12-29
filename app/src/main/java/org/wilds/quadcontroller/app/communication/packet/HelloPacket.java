@@ -8,6 +8,7 @@ public class HelloPacket extends Packet {
     protected String from;
 
     public HelloPacket(String from) {
+        super();
         this.setType(TYPE_HELLO);
         setFrom(from);
     }
@@ -27,6 +28,6 @@ public class HelloPacket extends Packet {
 
     @Override
     public String toString() {
-        return TYPE_HELLO + " " + from;
+        return super.toString() + " " + from;
     }
 }
