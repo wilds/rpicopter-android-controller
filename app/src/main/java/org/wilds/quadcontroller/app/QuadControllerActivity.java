@@ -222,7 +222,7 @@ public class QuadControllerActivity extends Activity implements SharedPreference
             protocol.sendPacket(new MotionPacket(throttle, yaw, pitch, roll));
             lastSend = System.currentTimeMillis();
             if (debugHUD)
-                overlayView.setData(throttle, yaw, pitch, roll, throttle * 10 + (int)(Math.random() * 10), -1);
+                overlayView.setData(throttle, yaw, pitch, roll, throttle * 10 + (int)(Math.random() * 10), 500);
         } else {
             mHandler.postDelayed(mHandlerTask, 80);
         }

@@ -173,12 +173,13 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
         canvas.drawPath(path, paint);
 
         // steps
-        // TODO target
+        float target_y = -1;
+        float zero_y = -1;
         int step_distance = height / stepCount;
         float thr_off = (float) (value % stepValue) / stepValue;
         int startval = (int) Math.floor(value / stepValue) * stepValue - (stepCount / 2) * stepValue;
         int stepSize = width * 1 / 2;
-        for (int i = 1; i < stepCount; ++i) {
+        for (int i = 0; i < stepCount; ++i) {
             int val = startval + (stepCount - i) * stepValue;      // stepCount - i for mirror the value in y
             if (val >= 0) {
                 if (!flip)
@@ -197,6 +198,16 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
                         canvas.drawText(text, offsetX + stepSize + 1, offsetY + step_distance * i + step_distance * thr_off + rect.height() / 2, paint);
                     }
                 }
+                if (target > 0) {
+                    if (Math.abs(val - target) < stepValue) {
+                        float target_off = thr_off + (float) ((val - target) % stepValue) / stepValue;
+                        float target_x = !flip ? offsetX + (width - stepSize * 2) : offsetX;
+                        target_y = offsetY + step_distance * i + step_distance * target_off;
+                        //canvas.drawLine(target_x, target_y, target_x + stepSize * 2, target_y, paint);
+                    }
+                }
+                if (val == 0)
+                    zero_y = offsetY + step_distance * i + step_distance * thr_off;
             }
         }
 
@@ -237,6 +248,23 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
             canvas.drawText(value_str, offsetX + stepSize + arrowSize + 3, offsetY + step_distance * (int) Math.floor(stepCount / 2) + valueRect.height() / 2, paintBigText);
         }
         canvas.drawPath(pathValue, paint);
+
+        if (target > 0) {
+            if (target_y < 0) {
+                if (value > target)
+                    target_y = offsetY + height;
+                else
+                    target_y = offsetY;
+            }
+            if (zero_y < 0) {
+                zero_y = offsetY + height;
+            }
+            canvas.drawLine(offsetX + stepSize, target_y, offsetX + stepSize, offsetY + step_distance * (int) Math.floor(stepCount / 2) - h / 2 + h * 1 / 2, paint);
+
+            canvas.drawLine(offsetX + stepSize / 2 * (!flip ? +1 : -1), zero_y, offsetX + stepSize / 2 * (!flip ? +1 : -1), target_y, paint);
+            canvas.drawLine(offsetX, target_y, offsetX + stepSize / 2 * (!flip ? +1 : -1), target_y, paint);
+            canvas.drawLine(offsetX, zero_y, offsetX + stepSize / 2 * (!flip ? +1 : -1), zero_y, paint);
+        }
     }
 
 }
