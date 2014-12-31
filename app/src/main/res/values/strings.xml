@@ -3,6 +3,8 @@
     <string name="app_name">QuadController</string>
     <string name="action_settings">Settings</string>
     <string name="action_connect">Connect</string>
+    <string name="action_altitude_holder_enable">Enable Altitude Holder</string>
+    <string name="action_altitude_holder_disable">Disable Altitude Holder</string>
 
     <string name="connected">Connected</string>
 

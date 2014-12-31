@@ -15,6 +15,7 @@ import android.widget.VideoView;
 import org.wilds.quadcontroller.app.communication.OnReceiveListener;
 import org.wilds.quadcontroller.app.communication.Protocol;
 import org.wilds.quadcontroller.app.communication.UDPProtocol;
+import org.wilds.quadcontroller.app.communication.packet.AltitudeHolderEnablePacket;
 import org.wilds.quadcontroller.app.communication.packet.MotionPacket;
 import org.wilds.quadcontroller.app.communication.packet.Packet;
 import org.wilds.quadcontroller.app.joystick.DualJoystickView;
@@ -37,6 +38,8 @@ public class QuadControllerActivity extends Activity implements SharedPreference
     protected int yaw = 0;
     protected int roll = 0;
     protected int pitch = 0;
+
+    protected boolean altitudeholderEnabled = false;
 
     protected long lastSend = 0;
 
@@ -209,9 +212,15 @@ public class QuadControllerActivity extends Activity implements SharedPreference
             case R.id.action_connect:
                 protocol.searchForQuadcopter();
                 return true;
+            case R.id.action_altitude_holder:
+                altitudeholderEnabled = !altitudeholderEnabled;
+                protocol.sendPacket(new AltitudeHolderEnablePacket(altitudeholderEnabled));
+                item.setTitle(altitudeholderEnabled ? R.string.action_altitude_holder_disable : R.string.action_altitude_holder_enable);
+                return true;
             case R.id.action_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

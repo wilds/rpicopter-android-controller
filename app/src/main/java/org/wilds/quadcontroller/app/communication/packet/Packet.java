@@ -14,6 +14,8 @@ public abstract class Packet {
     public static final String TYPE_QUERY_STATUS = "querystatus";
     public static final String TYPE_TAKE_PICTURE = "takepicture";
     public static final String TYPE_VIDEO = "vidsnap";
+    public static final String TYPE_ALTITUDE_HOLDER_ENABLE = "altitudeholderenabled";
+    public static final String TYPE_ALTITUDE_TARGET = "altitudetarget";
 
     protected long id = -1;
     protected String type;
