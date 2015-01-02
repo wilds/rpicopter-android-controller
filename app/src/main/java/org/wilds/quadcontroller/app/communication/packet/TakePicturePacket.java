@@ -5,7 +5,7 @@ package org.wilds.quadcontroller.app.communication.packet;
  */
 public class TakePicturePacket extends Packet {
 
-    public TakePicturePacket(String from) {
+    public TakePicturePacket() {
         super();
         this.setType(TYPE_TAKE_PICTURE);
     }

@@ -6,10 +6,18 @@ package org.wilds.quadcontroller.app.communication.packet;
 public class AltitudeTargetPacket extends Packet {
 
     protected int value;
+    protected boolean mod = false;
 
     public AltitudeTargetPacket(int value) {
         super();
         this.setType(TYPE_ALTITUDE_TARGET);
+        setValue(value);
+    }
+
+    public AltitudeTargetPacket(boolean mod, int value) {
+        super();
+        this.setType(TYPE_ALTITUDE_TARGET);
+        this.mod = mod;
         setValue(value);
     }
 
@@ -28,6 +36,8 @@ public class AltitudeTargetPacket extends Packet {
 
     @Override
     public String toString() {
-        return super.toString() + " " + value;
+        if (!mod && value < 0)
+            return super.toString() + " 0";
+        return super.toString() + " " + (mod && value >=0 ? "+" : "") + value;
     }
 }

@@ -15,6 +15,29 @@
         app:showAsAction="never"
         android:icon="@android:drawable/ic_menu_sort_by_size"/>
 
+    <item android:id="@+id/action_take_picture"
+        android:title="@string/action_take_picture"
+        android:orderInCategory="100"
+        app:showAsAction="never"
+        android:icon="@android:drawable/ic_menu_gallery"/>
+
+    <item android:id="@+id/action_snap_video_record"
+        android:title="@string/action_snap_video_record"
+        android:orderInCategory="100"
+        app:showAsAction="never"
+        android:icon="@android:drawable/ic_menu_camera"/>
+    <item android:id="@+id/action_snap_video_pause"
+        android:title="@string/action_snap_video_pause"
+        android:orderInCategory="100"
+        app:showAsAction="never"
+        android:icon="@android:drawable/ic_menu_camera"/>
+    <item android:id="@+id/action_snap_video_stop"
+        android:title="@string/action_snap_video_stop"
+        android:orderInCategory="100"
+        app:showAsAction="never"
+        android:icon="@android:drawable/ic_menu_camera"/>
+
+
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"

@@ -3,6 +3,7 @@ package org.wilds.quadcontroller.app;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
@@ -16,6 +17,7 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
 
     private Paint paint;
     private Paint paintBigText;
+    private Paint paintRed;
 
     protected int throttle = 0;
     protected int yaw = 0;      //degree
@@ -23,6 +25,8 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
     protected int pitch = 0;    //degree
     protected int altitude = 0; //cm
     protected int altitude_target = 0; //cm
+
+    protected int recording = 0;
 
     protected static final float PITCH_TRANSLATE_FACTOR = 15.0f;     // from degree to dpi
     protected static final float PITCH_STEP = PITCH_TRANSLATE_FACTOR * 5;
@@ -75,6 +79,15 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
         paintBigText.setTextSize(18);
         paintBigText.setStrokeWidth(2);
         paintBigText.setStyle(Paint.Style.STROKE);
+
+        paintRed = new Paint();
+        paintRed.setColor(Color.RED);
+        paintRed.setAntiAlias(true);
+        paintRed.setFlags(Paint.ANTI_ALIAS_FLAG);
+        paintRed.setTextAlign(Paint.Align.CENTER);
+        paintRed.setTextSize(18);
+        paintRed.setStrokeWidth(2);
+        paintRed.setStyle(Paint.Style.FILL_AND_STROKE);
     }
 
     @Override
@@ -86,17 +99,18 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
         this.invalidate();
     }
 
-    public void setData(int throttle, int yaw, int pitch, int roll, int altitude, int altitude_target) {
+    public void setData(int throttle, int yaw, int pitch, int roll, int altitude, int altitude_target, int recording) {
         this.throttle = throttle;
         this.yaw = yaw;
         this.pitch = pitch;
         this.roll = roll;
         this.altitude = altitude;
         this.altitude_target = altitude_target;
+        this.recording = recording;
         this.invalidate();
     }
 
-    public void setData(int throttle, float yaw, float pitch, float roll, int altitude, int altitude_target) {
+    public void setData(int throttle, float yaw, float pitch, float roll, int altitude, int altitude_target, int recording) {
         this.throttle = throttle;
 
         // convert in degree
@@ -106,6 +120,7 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
 
         this.altitude = altitude;
         this.altitude_target = altitude_target;
+        this.recording = recording;
         this.invalidate();
     }
 
@@ -122,6 +137,18 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
             int contentWidth = getWidth() - paddingLeft - paddingRight;
             int contentHeight = getHeight() - paddingTop - paddingBottom;
 
+            // Record status
+            if (recording == 1) {
+                Rect rect = new Rect();
+                paintRed.getTextBounds("REC", 0, 3, rect);
+                canvas.drawText("REC", getWidth() - rect.width(), rect.height(), paintRed);
+                int radius = contentWidth / 20 / 3;
+                canvas.drawCircle(getWidth() - rect.width() - radius * 4, rect.height() - radius, radius, paintRed);
+            } else if (recording == 2) {
+                Rect rect = new Rect();
+                paintRed.getTextBounds("PAUSE", 0, 3, rect);
+                canvas.drawText("PAUSE", getWidth() - rect.width(), rect.height(), paintRed);
+            }
 
             // Throttle
             drawIndicator(canvas, paddingLeft, contentHeight * 2 / 10, contentWidth * 1 / 20, contentHeight * 6 / 10, THROTTLE_STEPS, THROTTLE_STEP_VALUE, THROTTLE_STEPS_DISPLAY_VALUE, throttle, paint, paintBigText, false, -1);
@@ -134,6 +161,17 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
             // Pitch and roll
             int offsetx = contentHeight / 2;
             canvas.rotate(roll, paddingLeft + contentWidth / 2, paddingTop + contentHeight / 2);
+
+            /*
+            Path t = new Path();
+            t.moveTo(contentWidth * 1 / 20 / 2, 0);
+            t.lineTo(contentWidth * 1 / 20, contentWidth * 1 / 20);
+            t.lineTo(0, contentWidth * 1 / 20);
+            t.close();
+            t.offset( paddingLeft + contentWidth * 10 / 20 - contentWidth * 1 / 20 / 2, contentHeight * 1/20);
+            canvas.drawPath(t, paint);
+            */
+
             canvas.translate(0, -pitch * PITCH_TRANSLATE_FACTOR);
             canvas.drawLine(paddingLeft + contentWidth * 2 / 10, offsetx, paddingLeft + contentWidth * 8 / 10, offsetx, paint); // main
             for (int i = -36; i < 36; ++i) {

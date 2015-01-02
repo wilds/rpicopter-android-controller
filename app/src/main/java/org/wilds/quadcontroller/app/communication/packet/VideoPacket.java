@@ -6,8 +6,8 @@ package org.wilds.quadcontroller.app.communication.packet;
 public class VideoPacket extends Packet {
 
     public enum Command {
-        record,
         stop,
+        record,
         pause
     }
 

@@ -5,8 +5,14 @@
     <string name="action_connect">Connect</string>
     <string name="action_altitude_holder_enable">Enable Altitude Holder</string>
     <string name="action_altitude_holder_disable">Disable Altitude Holder</string>
+    <string name="action_take_picture">Take picture</string>
+    <string name="action_snap_video_record">Capture video</string>
+    <string name="action_snap_video_pause">Pause video</string>
+    <string name="action_snap_video_stop">Stop video</string>
 
     <string name="connected">Connected</string>
+    <string name="picture_saved">Picture saved</string>
+
 
     <string name="info_connect">Press menu button and select \'Connect\'</string>
     <string name="need_restart">You need to restart the application for the changes to take effect</string>
@@ -24,5 +30,6 @@
 \n
     You should have received a copy of the GNU General Public License\n
     along with this program.  If not, see http://www.gnu.org/licenses/</string>
+
 
 </resources>
