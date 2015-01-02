@@ -38,7 +38,7 @@ public class QuadControllerActivity extends Activity implements SharedPreference
     protected DualJoystickView joystick;
     protected OverlayView overlayView;
 
-    protected int throttle = 6;
+    protected int throttle = 0;
     protected int yaw = 0;
     protected int roll = 0;
     protected int pitch = 0;
