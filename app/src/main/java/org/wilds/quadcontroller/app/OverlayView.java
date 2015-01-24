@@ -20,15 +20,15 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
     private Paint paintRed;
 
     protected int throttle = 0;
-    protected int yaw = 0;      //degree
-    protected int roll = 0;     //degree
-    protected int pitch = 0;    //degree
+    protected float yaw = 0;      //degree
+    protected float roll = 0;     //degree
+    protected float pitch = 0;    //degree
     protected int altitude = 0; //cm
     protected int altitude_target = 0; //cm
 
     protected int recording = 0;
 
-    protected static final float PITCH_TRANSLATE_FACTOR = 15.0f;     // from degree to dpi
+    protected static final float PITCH_TRANSLATE_FACTOR = 16.0f;     // from degree to dpi
     protected static final float PITCH_STEP = PITCH_TRANSLATE_FACTOR * 5;
 
     protected static final int THROTTLE_STEPS = 12;
@@ -114,10 +114,15 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
         this.throttle = throttle;
 
         // convert in degree
+        /*
         this.yaw = (int) (yaw * 180 / Math.PI);
         this.pitch = (int) (pitch * 180 / Math.PI);
         this.roll = (int) (roll * 180 / Math.PI);
+        */
 
+        this.yaw = yaw;
+        this.pitch = pitch;
+        this.roll = roll;
         this.altitude = altitude;
         this.altitude_target = altitude_target;
         this.recording = recording;

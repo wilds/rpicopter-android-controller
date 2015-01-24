@@ -28,7 +28,7 @@ public class UDPProtocol implements Protocol {
 
     protected Handler mHandler = new Handler();
     private final static int INTERVAL_HEARTBEAT = 1000 * 2;
-    private final static int INTERVAL_QUERY_STATUS = 100;
+    private final static int INTERVAL_QUERY_STATUS = 200;
     //
     protected DatagramSocket sendSocket;
     protected int sendPort = 58000;
