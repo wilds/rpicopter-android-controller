@@ -7,9 +7,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dip">
+    android:padding="16dip">
 
     <TextView
+        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="16sp"
@@ -17,11 +18,19 @@
         android:textColor="?android:attr/textColorPrimary" />
 
     <TextView
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:text="@string/app_copyright"
+        android:textColor="?android:attr/textColorPrimary" />
+
+    <TextView
         android:id="@+id/about_credits"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="20dip"
-        android:textSize="16sp"
+        android:textSize="12sp"
         android:text="@string/app_credits"
         android:autoLink="web"
         android:textColor="?android:attr/textColorPrimary" />
