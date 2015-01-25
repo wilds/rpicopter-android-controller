@@ -56,11 +56,15 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
 
     private void init(AttributeSet attrs, int defStyle) {
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        int color = 0x645CFF7B;
 
-        hudEnable = sharedPreferences.getBoolean("hud_enable", true);
-        int color = sharedPreferences.getInt("hud_color", 0x645CFF7B);
+        if (!isInEditMode()) {
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+            sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+            hudEnable = sharedPreferences.getBoolean("hud_enable", true);
+            color = sharedPreferences.getInt("hud_color", 0x645CFF7B);
+        }
 
         paint = new Paint();
         paint.setColor(color);
