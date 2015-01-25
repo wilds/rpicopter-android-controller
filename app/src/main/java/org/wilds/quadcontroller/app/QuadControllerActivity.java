@@ -94,6 +94,7 @@ public class QuadControllerActivity extends Activity implements SharedPreference
         joystick.setOnJostickMovedListener(_listenerLeft, _listenerRight);
         joystick.getLeftStick().setDisableAutoReturnToCenterY(true);
         joystick.getLeftStick().setYAxisInverted(false);
+        joystick.setMovementRange(100, 100);
 
         /*
         Button connect = (Button) findViewById(R.id.buttonConnect);
@@ -176,7 +177,7 @@ public class QuadControllerActivity extends Activity implements SharedPreference
 
         @Override
         public void OnMoved(int pan, int tilt) {
-            throttle = tilt + 50;
+            throttle = tilt / 2 + 50;
             yaw = pan;
             sendMotionPacket();
         }
