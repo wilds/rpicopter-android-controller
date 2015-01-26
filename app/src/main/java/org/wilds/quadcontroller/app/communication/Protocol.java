@@ -33,4 +33,5 @@ public interface Protocol {
     public void stopQueryStatus();
     public void startHeartBeat();
     public void stopHeartBeat();
+    public int getLatency();
 }

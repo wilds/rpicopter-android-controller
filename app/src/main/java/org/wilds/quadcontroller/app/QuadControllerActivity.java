@@ -77,15 +77,17 @@ public class QuadControllerActivity extends Activity implements SharedPreference
     protected int debugAltTarget = 0;
 
     protected LinkQuality linkQuality;
-    protected boolean linkQualityEnabled;
+    protected boolean linkQualitySignalEnabled;
+    protected boolean linkQualitySpeedEnabled;
+    protected boolean linkQualityLagEnabled;
+    protected boolean linkQualityRunning = false;
     protected Runnable updateLinkQuality = new Runnable() {
         @Override
         public void run() {
             linkQuality.update();
-            overlayView.setWiFiSignal(linkQualityEnabled ? linkQuality.getSignalLevel(6) : -1, true);
-            //Toast.makeText(QuadControllerActivity.this, linkQualityEnabled + "  " +linkQuality.getSignalLevel(6) + " " +linkQuality.getSignal() + " " + linkQuality.getLinkSpeed(), Toast.LENGTH_LONG).show();
-            if (linkQualityEnabled)
-                mHandler.postDelayed(updateLinkQuality, 5000);
+            overlayView.setWiFiData(linkQualitySignalEnabled ? linkQuality.getSignalLevel(6) : -1, linkQualitySpeedEnabled ? linkQuality.getLinkSpeed() : -1, linkQualityLagEnabled ? protocol.getLatency() : -1, true);
+            //Toast.makeText(QuadControllerActivity.this, linkQualitySignalEnabled + "  " +linkQuality.getSignalLevel(6) + " " +linkQuality.getSignal() + " " + linkQuality.getLinkSpeed(), Toast.LENGTH_LONG).show();
+            mHandler.postDelayed(updateLinkQuality, 5000);
         }
     };
 
@@ -130,9 +132,11 @@ public class QuadControllerActivity extends Activity implements SharedPreference
         joystick.setMovementRange(100, 100);
 
         linkQuality = new LinkQuality(this);
-        linkQualityEnabled = sharedPreferences.getBoolean("wifi_signal_enabled", true);
-        if (linkQualityEnabled) {
-            mHandler.post(updateLinkQuality);
+        linkQualitySignalEnabled = sharedPreferences.getBoolean("wifi_signal_enabled", true);
+        linkQualitySpeedEnabled = sharedPreferences.getBoolean("wifi_speed_enabled", false);
+        linkQualityLagEnabled = sharedPreferences.getBoolean("wifi_latency_enabled", false);
+        if (linkQualitySignalEnabled || linkQualityLagEnabled) {
+            startLinkQuality();
         }
 
         protocol.setOnReceiveListener(new OnReceiveListener() {
@@ -192,15 +196,14 @@ public class QuadControllerActivity extends Activity implements SharedPreference
             Toast.makeText(this, R.string.need_restart, Toast.LENGTH_LONG).show();
         debugHUD = sharedPreferences.getBoolean("debug_hud", false);
 
-        if (linkQualityEnabled != sharedPreferences.getBoolean("wifi_signal_enabled", true)) {
-            linkQualityEnabled = sharedPreferences.getBoolean("wifi_signal_enabled", true);
-            if (linkQualityEnabled)
-                mHandler.post(updateLinkQuality);
-            else {
-                mHandler.removeCallbacks(updateLinkQuality);
-                overlayView.setWiFiSignal(-1, true);
-            }
+        linkQualitySignalEnabled = sharedPreferences.getBoolean("wifi_signal_enabled", true);
+        linkQualitySpeedEnabled = sharedPreferences.getBoolean("wifi_speed_enabled", false);
+        linkQualityLagEnabled = sharedPreferences.getBoolean("wifi_latency_enabled", false);
+        if (linkQualitySignalEnabled || linkQualityLagEnabled) {
+            startLinkQuality();
         }
+        overlayView.setWiFiData(linkQualitySignalEnabled ? linkQuality.getSignalLevel(6) : -1, linkQualitySpeedEnabled ? linkQuality.getLinkSpeed() : -1, linkQualityLagEnabled ? protocol.getLatency() : -1, true);
+
     }
 
     private JoystickMovedListener _listenerLeft = new JoystickMovedListener() {
@@ -392,5 +395,19 @@ public class QuadControllerActivity extends Activity implements SharedPreference
 
     protected void debugUpdateHUD() {
         overlayView.setData(throttle, yaw, pitch, roll, throttle * 10 + (int)(Math.random() * 10), debugAltTarget, recordVideoStatus.ordinal());
+    }
+
+    protected void startLinkQuality() {
+        if (!linkQualityRunning) {
+            mHandler.post(updateLinkQuality);
+            linkQualityRunning = true;
+        }
+    }
+
+    protected void stopLinkQuality() {
+        if (linkQualityRunning) {
+            mHandler.removeCallbacks(updateLinkQuality);
+            linkQualityRunning = false;
+        }
     }
 }

@@ -64,6 +64,24 @@
                 android:defaultValue="true"
                 android:icon="@android:drawable/ic_menu_view"/>
 
+            <CheckBoxPreference
+                android:dependency="wifi_signal_enabled"
+                android:disableDependentsState="false"
+                android:key="wifi_speed_enabled"
+                android:title="@string/pref_wifi_speed_enabled_title"
+                android:summary="@string/pref_wifi_speed_enabled_summary"
+                android:defaultValue="false"
+                android:icon="@android:drawable/ic_menu_view"/>
+
+            <CheckBoxPreference
+                android:dependency="hud_enabled"
+                android:disableDependentsState="false"
+                android:key="wifi_latency_enabled"
+                android:title="@string/pref_wifi_latency_enabled_title"
+                android:summary="@string/pref_wifi_latency_enabled_summary"
+                android:defaultValue="false"
+                android:icon="@android:drawable/ic_menu_view"/>
+
         </PreferenceCategory>
 <!--
         <PreferenceCategory android:title="@string/pref_debug_category" >

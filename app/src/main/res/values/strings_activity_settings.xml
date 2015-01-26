@@ -22,7 +22,11 @@
     <string name="pref_hud_color_summary"></string>
     <string name="pref_debug_hud_title">Debug HUD</string>
     <string name="pref_debug_hud_summary"></string>
-    <string name="pref_wifi_signal_enabled_title">Show WiFi signal</string>
+    <string name="pref_wifi_signal_enabled_title">WiFi signal</string>
     <string name="pref_wifi_signal_enabled_summary"></string>
+    <string name="pref_wifi_speed_enabled_title">WiFi speed</string>
+    <string name="pref_wifi_speed_enabled_summary"></string>
+    <string name="pref_wifi_latency_enabled_title">WiFi latency</string>
+    <string name="pref_wifi_latency_enabled_summary"></string>
 
 </resources>

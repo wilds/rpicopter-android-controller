@@ -51,6 +51,8 @@ public class UDPProtocol implements Protocol {
     protected int sendPort = 58000;
     protected InetAddress sendTo;
 
+    protected int lag;
+
     private final BlockingQueue<Runnable> mQueue = new LinkedBlockingQueue<Runnable>();
     protected ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(5, 10, 1, TimeUnit.SECONDS, mQueue);
 
@@ -116,6 +118,8 @@ public class UDPProtocol implements Protocol {
                             Log.e("UDPProtocol", "not waiting for response");
                             continue;
                         }
+
+                        lag = (int) ((System.nanoTime() - packet.getId()) / 1000000);
 
                         //TODO handle quadcopter response
                         if (onReceiveListener != null)
@@ -271,5 +275,9 @@ public class UDPProtocol implements Protocol {
         } catch (UnknownHostException e) {
             return false;
         }
+    }
+
+    public int getLatency() {
+        return lag;
     }
 }
