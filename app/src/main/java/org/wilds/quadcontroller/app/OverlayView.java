@@ -171,9 +171,9 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
 
             // WiFi Signal
             if (wifiSignal >= 0) {
-                int offsetX = 20;
+                int offsetX = 10;
                 int offsetY = 2;
-                int heightPerLevel = 5;
+                int heightPerLevel = 4;
                 int maxLevel = 6;
                 for (int i = 0; i <= wifiSignal && i < maxLevel; ++i)
                     canvas.drawRect(offsetX + i * 6, offsetY + (maxLevel - i) * heightPerLevel, offsetX + i * 6 + 3, offsetY + maxLevel * heightPerLevel, wifiSignal >= 1 ? paint : paintRed);
