@@ -55,6 +55,15 @@
                 android:title="@string/pref_hud_color_title"
                 android:icon="@android:drawable/ic_menu_mapmode"/>
 
+            <CheckBoxPreference
+                android:dependency="hud_enabled"
+                android:disableDependentsState="false"
+                android:key="wifi_signal_enabled"
+                android:title="@string/pref_wifi_signal_enabled_title"
+                android:summary="@string/pref_wifi_signal_enabled_summary"
+                android:defaultValue="true"
+                android:icon="@android:drawable/ic_menu_view"/>
+
         </PreferenceCategory>
 <!--
         <PreferenceCategory android:title="@string/pref_debug_category" >
@@ -65,6 +74,13 @@
                 android:icon="@android:drawable/ic_menu_manage">
 
             </Preference>
+
+            <CheckBoxPreference
+                android:key="debug_hud"
+                android:title="@string/pref_debug_hud_title"
+                android:summary="@string/pref_debug_hud_summary"
+                android:defaultValue="false"
+                android:icon="@android:drawable/ic_menu_camera"/>
         </PreferenceCategory>
 -->
         <PreferenceCategory android:title="@string/pref_about_category" >

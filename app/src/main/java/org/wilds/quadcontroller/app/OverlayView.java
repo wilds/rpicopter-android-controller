@@ -45,6 +45,8 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
 
     protected int recording = 0;
 
+    protected int wifiSignal = -1;
+
     protected static final float PITCH_TRANSLATE_FACTOR = 16.0f;     // from degree to dpi
     protected static final float PITCH_STEP = PITCH_TRANSLATE_FACTOR * 5;
 
@@ -121,6 +123,10 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
     }
 
     public void setData(int throttle, int yaw, int pitch, int roll, int altitude, int altitude_target, int recording) {
+        setData(throttle, (float)yaw, (float)pitch, (float)roll, altitude, altitude_target, recording);
+    }
+
+    public void setData(int throttle, float yaw, float pitch, float roll, int altitude, int altitude_target, int recording) {
         this.throttle = throttle;
         this.yaw = yaw;
         this.pitch = pitch;
@@ -131,23 +137,10 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
         this.invalidate();
     }
 
-    public void setData(int throttle, float yaw, float pitch, float roll, int altitude, int altitude_target, int recording) {
-        this.throttle = throttle;
-
-        // convert in degree
-        /*
-        this.yaw = (int) (yaw * 180 / Math.PI);
-        this.pitch = (int) (pitch * 180 / Math.PI);
-        this.roll = (int) (roll * 180 / Math.PI);
-        */
-
-        this.yaw = yaw;
-        this.pitch = pitch;
-        this.roll = roll;
-        this.altitude = altitude;
-        this.altitude_target = altitude_target;
-        this.recording = recording;
-        this.invalidate();
+    public void setWiFiSignal(int wifiSignal, boolean redraw) {
+        this.wifiSignal = wifiSignal;
+        if (redraw)
+            this.invalidate();
     }
 
     @Override
@@ -174,6 +167,16 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
                 Rect rect = new Rect();
                 paintRed.getTextBounds("PAUSE", 0, 3, rect);
                 canvas.drawText("PAUSE", getWidth() - rect.width(), rect.height(), paintRed);
+            }
+
+            // WiFi Signal
+            if (wifiSignal >= 0) {
+                int offsetX = 20;
+                int offsetY = 2;
+                int heightPerLevel = 5;
+                int maxLevel = 6;
+                for (int i = 0; i <= wifiSignal && i < maxLevel; ++i)
+                    canvas.drawRect(offsetX + i * 6, offsetY + (maxLevel - i) * heightPerLevel, offsetX + i * 6 + 3, offsetY + maxLevel * heightPerLevel, wifiSignal >= 1 ? paint : paintRed);
             }
 
             // Throttle

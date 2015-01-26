@@ -33,6 +33,8 @@ public abstract class Packet {
     public static final String TYPE_VIDEO = "vidsnap";
     public static final String TYPE_ALTITUDE_HOLDER_ENABLE = "altitudeholderenabled";
     public static final String TYPE_ALTITUDE_TARGET = "altitudetarget";
+    public static final String TYPE_FLYMODE = "flymode";
+
 
     protected long id = -1;
     protected String type;

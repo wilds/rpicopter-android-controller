@@ -9,6 +9,12 @@
         app:showAsAction="never"
         android:icon="@android:drawable/ic_menu_upload"/>
 
+    <item android:id="@+id/action_flymode"
+        android:title="@string/action_action_flymode_acro"
+        android:orderInCategory="100"
+        app:showAsAction="never"
+        android:icon="@android:drawable/ic_menu_send"/>
+
     <item android:id="@+id/action_altitude_holder"
         android:title="@string/action_altitude_holder_enable"
         android:orderInCategory="100"

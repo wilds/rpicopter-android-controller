@@ -20,5 +20,9 @@
     <string name="pref_debug_category">Test and debug</string>
     <string name="pref_hud_color_title">Color</string>
     <string name="pref_hud_color_summary"></string>
+    <string name="pref_debug_hud_title">Debug HUD</string>
+    <string name="pref_debug_hud_summary"></string>
+    <string name="pref_wifi_signal_enabled_title">Show WiFi signal</string>
+    <string name="pref_wifi_signal_enabled_summary"></string>
 
 </resources>

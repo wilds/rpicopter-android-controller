@@ -35,6 +35,7 @@ import org.wilds.quadcontroller.app.communication.Protocol;
 import org.wilds.quadcontroller.app.communication.UDPProtocol;
 import org.wilds.quadcontroller.app.communication.packet.AltitudeHolderEnablePacket;
 import org.wilds.quadcontroller.app.communication.packet.AltitudeTargetPacket;
+import org.wilds.quadcontroller.app.communication.packet.FlyModePacket;
 import org.wilds.quadcontroller.app.communication.packet.MotionPacket;
 import org.wilds.quadcontroller.app.communication.packet.Packet;
 import org.wilds.quadcontroller.app.communication.packet.TakePicturePacket;
@@ -63,6 +64,8 @@ public class QuadControllerActivity extends Activity implements SharedPreference
     protected boolean altitudeholderEnabled = false;
     protected VideoPacket.Command recordVideoStatus = VideoPacket.Command.stop;
 
+    protected int flymode = 0;
+
     protected Menu menu;
 
     protected long lastSend = 0;
@@ -72,6 +75,19 @@ public class QuadControllerActivity extends Activity implements SharedPreference
 
     protected boolean debugHUD = false;
     protected int debugAltTarget = 0;
+
+    protected LinkQuality linkQuality;
+    protected boolean linkQualityEnabled;
+    protected Runnable updateLinkQuality = new Runnable() {
+        @Override
+        public void run() {
+            linkQuality.update();
+            overlayView.setWiFiSignal(linkQualityEnabled ? linkQuality.getSignalLevel(6) : -1, true);
+            //Toast.makeText(QuadControllerActivity.this, linkQualityEnabled + "  " +linkQuality.getSignalLevel(6) + " " +linkQuality.getSignal() + " " + linkQuality.getLinkSpeed(), Toast.LENGTH_LONG).show();
+            if (linkQualityEnabled)
+                mHandler.postDelayed(updateLinkQuality, 5000);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,24 +129,11 @@ public class QuadControllerActivity extends Activity implements SharedPreference
         joystick.getLeftStick().setYAxisInverted(false);
         joystick.setMovementRange(100, 100);
 
-        /*
-        Button connect = (Button) findViewById(R.id.buttonConnect);
-        connect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                protocol.searchForQuadcopter();
-            }
-        });
-
-
-        Button test0 = (Button) findViewById(R.id.buttonTestMotor0);
-        test0.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                protocol.sendPacket(new TestMotorPacket(2500, 0, 0, 0));
-            }
-        });
-        */
+        linkQuality = new LinkQuality(this);
+        linkQualityEnabled = sharedPreferences.getBoolean("wifi_signal_enabled", true);
+        if (linkQualityEnabled) {
+            mHandler.post(updateLinkQuality);
+        }
 
         protocol.setOnReceiveListener(new OnReceiveListener() {
             @Override
@@ -188,6 +191,16 @@ public class QuadControllerActivity extends Activity implements SharedPreference
         if (udpPort != Integer.parseInt(sharedPreferences.getString("udp_port", "1032")))
             Toast.makeText(this, R.string.need_restart, Toast.LENGTH_LONG).show();
         debugHUD = sharedPreferences.getBoolean("debug_hud", false);
+
+        if (linkQualityEnabled != sharedPreferences.getBoolean("wifi_signal_enabled", true)) {
+            linkQualityEnabled = sharedPreferences.getBoolean("wifi_signal_enabled", true);
+            if (linkQualityEnabled)
+                mHandler.post(updateLinkQuality);
+            else {
+                mHandler.removeCallbacks(updateLinkQuality);
+                overlayView.setWiFiSignal(-1, true);
+            }
+        }
     }
 
     private JoystickMovedListener _listenerLeft = new JoystickMovedListener() {
@@ -251,6 +264,12 @@ public class QuadControllerActivity extends Activity implements SharedPreference
         switch(item.getItemId()) {
             case R.id.action_connect:
                 protocol.searchForQuadcopter();
+                return true;
+
+            case R.id.action_flymode:
+                flymode = 1 - flymode;
+                protocol.sendPacket(new FlyModePacket(flymode == 0 ? FlyModePacket.FlyMode.stable : FlyModePacket.FlyMode.acro));
+                item.setTitle(flymode == 0 ? R.string.action_action_flymode_stable : R.string.action_action_flymode_acro);
                 return true;
 
             case R.id.action_altitude_holder:
@@ -351,16 +370,19 @@ public class QuadControllerActivity extends Activity implements SharedPreference
     protected void updateMenu() {
         switch (recordVideoStatus) {
             case stop:
+                menu.findItem(R.id.action_take_picture).setVisible(true);
                 menu.findItem(R.id.action_snap_video_record).setVisible(true);
                 menu.findItem(R.id.action_snap_video_stop).setVisible(false);
                 menu.findItem(R.id.action_snap_video_pause).setVisible(false);
                 break;
             case pause:
+                menu.findItem(R.id.action_take_picture).setVisible(false);
                 menu.findItem(R.id.action_snap_video_record).setVisible(true);
                 menu.findItem(R.id.action_snap_video_stop).setVisible(true);
                 menu.findItem(R.id.action_snap_video_pause).setVisible(false);
                 break;
             case record:
+                menu.findItem(R.id.action_take_picture).setVisible(false);
                 menu.findItem(R.id.action_snap_video_record).setVisible(false);
                 menu.findItem(R.id.action_snap_video_stop).setVisible(true);
                 menu.findItem(R.id.action_snap_video_pause).setVisible(true);
