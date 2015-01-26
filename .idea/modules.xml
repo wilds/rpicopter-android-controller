@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/colorpicker/colorpicker.iml" filepath="$PROJECT_DIR$/colorpicker/colorpicker.iml" />
-      <module fileurl="file://$PROJECT_DIR$/remote_controller.iml" filepath="$PROJECT_DIR$/remote_controller.iml" />
       <module fileurl="file://$PROJECT_DIR$/rpicopter_android_controller.iml" filepath="$PROJECT_DIR$/rpicopter_android_controller.iml" />
     </modules>
   </component>
