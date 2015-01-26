@@ -140,7 +140,7 @@ public class QuadControllerActivity extends Activity implements SharedPreference
                     Log.d("QuadController", quadcopter.getHostAddress());
                     protocol.connectToQuadcopter(quadcopter.getHostAddress());
                     startVideoStreaming(quadcopter.getHostAddress());
-                    mHandler.post(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(QuadControllerActivity.this, R.string.connected, Toast.LENGTH_SHORT).show();
@@ -153,18 +153,19 @@ public class QuadControllerActivity extends Activity implements SharedPreference
                     if (!data[0].equals("status")) {
                         System.err.printf("Invalid response from quadcopter: %s", data[0]);
                     } else {
-                        mHandler.post(new Runnable() {
+                        runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 // TODO send record time is secs shifted whit record status
-                                recordVideoStatus = data[7] == "1" ? VideoPacket.Command.record :  data[7] == "2" ? VideoPacket.Command.pause :  VideoPacket.Command.stop;
-                                overlayView.setData(throttle, Float.parseFloat(data[2]), Float.parseFloat(data[3]), Float.parseFloat(data[4]), Integer.parseInt(data[6]), Integer.parseInt(data[5]), Integer.parseInt(data[7]));
+                                int recordVideoData = Integer.parseInt(data[7]);
+                                recordVideoStatus = recordVideoData == 1 ? VideoPacket.Command.record : recordVideoData == 2 ? VideoPacket.Command.pause :  VideoPacket.Command.stop;
+                                overlayView.setData(throttle, Float.parseFloat(data[2]), Float.parseFloat(data[3]), Float.parseFloat(data[4]), Integer.parseInt(data[6]), Integer.parseInt(data[5]), recordVideoData);
                                 updateMenu();
                             }
                         });
                     }
                 } else if (type == Packet.TYPE_TAKE_PICTURE) {
-                    mHandler.post(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(QuadControllerActivity.this, R.string.picture_saved, Toast.LENGTH_SHORT).show();

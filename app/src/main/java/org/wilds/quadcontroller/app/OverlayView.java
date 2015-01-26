@@ -165,7 +165,7 @@ public class OverlayView extends View implements SharedPreferences.OnSharedPrefe
                 Rect rect = new Rect();
                 paintRed.getTextBounds("REC", 0, 3, rect);
                 canvas.drawText("REC", getWidth() - rect.width(), rect.height(), paintRed);
-                int radius = contentWidth / 20 / 3;
+                int radius = rect.height() / 2 - 2;
                 canvas.drawCircle(getWidth() - rect.width() - radius * 4, rect.height() - radius, radius, paintRed);
             } else if (recording == 2) {
                 Rect rect = new Rect();
