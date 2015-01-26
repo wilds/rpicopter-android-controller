@@ -12,7 +12,7 @@
     <string name="pref_udp_port_value">1032</string>
     <string name="pref_streaming_enabled_title">Show video</string>
     <string name="pref_tcp_port_title">TCP port</string>
-    <string name="pref_tcp_port_value">8888</string>
+    <string name="pref_tcp_port_value">9000</string>
     <string name="pref_streaming_enabled_summary"> </string>
     <string name="pref_about_summary"> </string>
     <string name="pref_test_motor_summary"> </string>

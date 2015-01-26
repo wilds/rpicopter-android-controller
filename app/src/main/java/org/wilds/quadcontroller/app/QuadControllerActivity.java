@@ -76,6 +76,10 @@ public class QuadControllerActivity extends Activity implements SharedPreference
     protected boolean debugHUD = false;
     protected int debugAltTarget = 0;
 
+    protected VideoView video;
+    protected boolean streamingEnabled = true;
+    protected int streamingPort = 9000;
+
     protected LinkQuality linkQuality;
     protected boolean linkQualitySignalEnabled;
     protected boolean linkQualitySpeedEnabled;
@@ -106,21 +110,9 @@ public class QuadControllerActivity extends Activity implements SharedPreference
         }
         debugHUD = sharedPreferences.getBoolean("debug_hud", false);
 
-        VideoView v = (VideoView) findViewById(R.id.surface_view);
-        // TEST!!!
-        /*
-        v.setVideoPath("rtsp://192.168.11.110:8554/test.sdp");
-        //v.setVideoPath("https://r2---sn-4g57kuel.googlevideo.com/videoplayback?ratebypass=yes&ip=93.55.50.131&requiressl=yes&fexp=3300103%2C3300103%2C3300133%2C3300133%2C3300137%2C3300137%2C3300164%2C3300164%2C3310366%2C3310366%2C3310704%2C3310704%2C900225%2C900718%2C912141%2C916645%2C927622%2C932404%2C9405766%2C9405883%2C941004%2C943917%2C947209%2C947218%2C948124%2C948532%2C952302%2C952605%2C952901%2C954807%2C955301%2C957103%2C957105%2C957201%2C959701&id=o-AH5n8wbfF9eElQzfJYaHSsArRwZI1jfDyvwFD_Y17yVF&mime=video%2Fmp4&expire=1419838507&ipbits=0&key=cms1&itag=22&signature=1E52F3763A5AFF497AD7D4EB032C6A3EA090C173.1C38498DA5EE2C09F7432E21143BA22780196074&upn=w0mkMLADuB0&dur=226.139&sver=3&source=youtube&sparams=dur,expire,id,initcwndbps,ip,ipbits,itag,mime,mm,ms,mv,ratebypass,requiressl,source,upn&title=Quadcopter%20Airborne%20Video%20Test.mp4&cpn=9m9s6o5_RSLG2XHx&redirect_counter=1&req_id=6a328ee249dca3ee&cms_redirect=yes&mm=26&ms=tsu&mt=1419816911&mv=m");
-        v.start();
-        v.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                mediaPlayer.seekTo(1);
-                mediaPlayer.start();
-            }
-        });
-        */
-        // END TEST
+        video = (VideoView) findViewById(R.id.surface_view);
+        streamingEnabled = sharedPreferences.getBoolean("streaming_enabled", true);
+        streamingPort = Integer.parseInt(sharedPreferences.getString("tcp_port", "9000"));
 
         overlayView = (OverlayView) findViewById(R.id.overlay_view);
 
@@ -147,6 +139,7 @@ public class QuadControllerActivity extends Activity implements SharedPreference
                     InetAddress quadcopter = (InetAddress) message;
                     Log.d("QuadController", quadcopter.getHostAddress());
                     protocol.connectToQuadcopter(quadcopter.getHostAddress());
+                    startVideoStreaming(quadcopter.getHostAddress());
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -204,6 +197,16 @@ public class QuadControllerActivity extends Activity implements SharedPreference
         }
         overlayView.setWiFiData(linkQualitySignalEnabled ? linkQuality.getSignalLevel(6) : -1, linkQualitySpeedEnabled ? linkQuality.getLinkSpeed() : -1, linkQualityLagEnabled ? protocol.getLatency() : -1, true);
 
+        streamingEnabled = sharedPreferences.getBoolean("streaming_enabled", true);
+
+        if (streamingPort != Integer.parseInt(sharedPreferences.getString("tcp_port", "9000"))) {
+            streamingPort = Integer.parseInt(sharedPreferences.getString("tcp_port", "9000"));
+        }
+
+        if (streamingEnabled && protocol.isConnected())
+            startVideoStreaming(protocol.getRemoteAddress());
+        else
+            video.stopPlayback();
     }
 
     private JoystickMovedListener _listenerLeft = new JoystickMovedListener() {
@@ -408,6 +411,30 @@ public class QuadControllerActivity extends Activity implements SharedPreference
         if (linkQualityRunning) {
             mHandler.removeCallbacks(updateLinkQuality);
             linkQualityRunning = false;
+        }
+    }
+
+    protected void startVideoStreaming(final String ip) {
+        if (streamingEnabled) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    video.stopPlayback();
+                    video.setVideoPath("http://" + ip + ":"+streamingPort+"/stream/video.h264");
+                    Log.d("QUADCONTROLLER", "http://" + ip + ":"+streamingPort+"/stream/video.h264");
+                    //v.setVideoPath("https://r2---sn-4g57kuel.googlevideo.com/videoplayback?ratebypass=yes&ip=93.55.50.131&requiressl=yes&fexp=3300103%2C3300103%2C3300133%2C3300133%2C3300137%2C3300137%2C3300164%2C3300164%2C3310366%2C3310366%2C3310704%2C3310704%2C900225%2C900718%2C912141%2C916645%2C927622%2C932404%2C9405766%2C9405883%2C941004%2C943917%2C947209%2C947218%2C948124%2C948532%2C952302%2C952605%2C952901%2C954807%2C955301%2C957103%2C957105%2C957201%2C959701&id=o-AH5n8wbfF9eElQzfJYaHSsArRwZI1jfDyvwFD_Y17yVF&mime=video%2Fmp4&expire=1419838507&ipbits=0&key=cms1&itag=22&signature=1E52F3763A5AFF497AD7D4EB032C6A3EA090C173.1C38498DA5EE2C09F7432E21143BA22780196074&upn=w0mkMLADuB0&dur=226.139&sver=3&source=youtube&sparams=dur,expire,id,initcwndbps,ip,ipbits,itag,mime,mm,ms,mv,ratebypass,requiressl,source,upn&title=Quadcopter%20Airborne%20Video%20Test.mp4&cpn=9m9s6o5_RSLG2XHx&redirect_counter=1&req_id=6a328ee249dca3ee&cms_redirect=yes&mm=26&ms=tsu&mt=1419816911&mv=m");
+                    video.start();
+                }
+            });
+
+        /*
+        v.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                mediaPlayer.seekTo(1);
+                mediaPlayer.start();
+            }
+        });*/
         }
     }
 }

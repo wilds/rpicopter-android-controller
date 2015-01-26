@@ -14,7 +14,6 @@
                 android:icon="@android:drawable/ic_menu_upload"/>
 
             <CheckBoxPreference
-                android:enabled="false"
                 android:key="streaming_enabled"
                 android:title="@string/pref_streaming_enabled_title"
                 android:summary="@string/pref_streaming_enabled_summary"
@@ -22,7 +21,6 @@
                 android:icon="@android:drawable/ic_menu_slideshow"/>
 
             <EditTextPreference
-                android:enabled="false"
                 android:dependency="streaming_enabled"
                 android:disableDependentsState="false"
                 android:key="tcp_port"

@@ -23,6 +23,7 @@ import org.wilds.quadcontroller.app.communication.packet.Packet;
  * Created by Wilds on 14/04/2014.
  */
 public interface Protocol {
+    public String getRemoteAddress();
     public boolean isConnected();
     public boolean searchForQuadcopter();  // send broadcast udp packet
     public boolean connectToQuadcopter(String id);   // connect to quadcopter

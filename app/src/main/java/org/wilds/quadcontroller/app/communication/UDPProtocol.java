@@ -255,6 +255,11 @@ public class UDPProtocol implements Protocol {
         return sendTo != null;
     }
 
+    @Override
+    public String getRemoteAddress() {
+        return sendTo.getHostAddress();
+    }
+
     /* this method is used to send fake packet to self and interrupt receive;*/
     private void sendFakePacket() {
         poolExecutor.execute(new Runnable() {
