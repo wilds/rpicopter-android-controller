@@ -24,6 +24,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Toast;
 
+import org.freedesktop.gstreamer.GStreamer;
+
 public class GStreamerSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
     private native void nativeInit();                   // Initialize native code, build pipeline, etc
     private native void nativeSetPipeline(String pipeline);
@@ -49,12 +51,13 @@ public class GStreamerSurfaceView extends SurfaceView implements SurfaceHolder.C
             stopPlayback();
         }
         Log.e("GStreamerSurfaceView", _message);
-        Toast.makeText(this.getContext(), _message, Toast.LENGTH_LONG).show();
+        Toast.makeText(this.getContext(), _message, Toast.LENGTH_LONG).show();  // TODO fire event and run in ui thread
     }
 
-    // Called from native code. This sets the content of the TextView from the UI thread.
+    // Called from native code.
     private void setMessage(final String _message) {
         Log.e("GStreamerSurfaceView", _message);
+        Toast.makeText(this.getContext(), _message, Toast.LENGTH_LONG).show();  // TODO fire event and run in ui thread
     }
 
     // Called from native code.
@@ -108,6 +111,11 @@ public class GStreamerSurfaceView extends SurfaceView implements SurfaceHolder.C
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        try {
+            GStreamer.init(this.getContext());
+        } catch (Exception e) {
+            Toast.makeText(this.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+        }
         nativeInit();
     }
 
@@ -194,7 +202,8 @@ public class GStreamerSurfaceView extends SurfaceView implements SurfaceHolder.C
         //if (stream_type==1)
         //    pipeline = "udpsrc address=" + uri[0] + " port=" + uri[1] + " caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264\" ! rtph264depay  ! avdec_h264 ! tee name=t ! queue ! videomixer name=m sink_0::xpos=0 sink_1::xpos=640 ! videoconvert ! autovideosink sync=false t. ! queue ! m.";
         //else
-        pipeline = "udpsrc address=" + uri[0] + " port=" + uri[1] + " caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264\" ! rtph264depay  ! avdec_h264 ! videoconvert ! autovideosink sync=false";
+        pipeline = "udpsrc port=" + uri[1] + " caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264\" ! rtph264depay  ! avdec_h264 ! videoconvert ! autovideosink sync=false";
+        //pipeline = "videotestsrc ! warptv ! autovideosink";
         Log.d("GStreamerSurfaceView", pipeline);
         nativeSetPipeline(pipeline);
     }

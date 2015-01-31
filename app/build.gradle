@@ -12,7 +12,7 @@ android {
         versionName "1.0"
 
         ndk {
-            moduleName "app"
+            moduleName "gstreamer_surfaceview"
         }
     }
     sourceSets.main {

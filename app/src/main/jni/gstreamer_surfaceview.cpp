@@ -123,7 +123,7 @@ static void set_error(const jint type, const gchar *message, CustomData *data) {
     JNIEnv *env = get_jni_env();
     GST_DEBUG("Setting error to: %s", message);
     jstring jmessage = env->NewStringUTF(message);
-    env->CallVoidMethod(data->app, set_error_method_id, type, message);
+    env->CallVoidMethod(data->app, set_error_method_id, type, jmessage);
     if (env->ExceptionCheck()) {
         GST_ERROR("Failed to call Java method");
         env->ExceptionClear();
