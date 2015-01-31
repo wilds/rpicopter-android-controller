@@ -22,9 +22,11 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.Toast;
 
 import org.freedesktop.gstreamer.GStreamer;
+
+import java.util.Collection;
+import java.util.LinkedList;
 
 public class GStreamerSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
     private native void nativeInit();                   // Initialize native code, build pipeline, etc
@@ -41,6 +43,8 @@ public class GStreamerSurfaceView extends SurfaceView implements SurfaceHolder.C
 
     private boolean pipeline_started = false;
 
+    private Collection<GStreamerSurfaceListener> listeners = new LinkedList<>();
+
     public int media_width = 320;
     public int media_height = 240;
 
@@ -51,13 +55,17 @@ public class GStreamerSurfaceView extends SurfaceView implements SurfaceHolder.C
             stopPlayback();
         }
         Log.e("GStreamerSurfaceView", _message);
-        Toast.makeText(this.getContext(), _message, Toast.LENGTH_LONG).show();  // TODO fire event and run in ui thread
+        for(GStreamerSurfaceListener listener : listeners) {
+            listener.onError(type, _message);
+        }
     }
 
     // Called from native code.
     private void setMessage(final String _message) {
         Log.e("GStreamerSurfaceView", _message);
-        Toast.makeText(this.getContext(), _message, Toast.LENGTH_LONG).show();  // TODO fire event and run in ui thread
+        for(GStreamerSurfaceListener listener : listeners) {
+            listener.onMessage(_message);
+        }
     }
 
     // Called from native code.
@@ -77,6 +85,9 @@ public class GStreamerSurfaceView extends SurfaceView implements SurfaceHolder.C
             case 4: // PLAYING
                 pipeline_started = true;
                 break;
+        }
+        for(GStreamerSurfaceListener listener : listeners) {
+            listener.onChangeStatus(_state);
         }
     }
 
@@ -114,7 +125,9 @@ public class GStreamerSurfaceView extends SurfaceView implements SurfaceHolder.C
         try {
             GStreamer.init(this.getContext());
         } catch (Exception e) {
-            Toast.makeText(this.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            for(GStreamerSurfaceListener listener : listeners) {
+                listener.onError(0, e.getMessage());
+            }
         }
         nativeInit();
     }
@@ -203,7 +216,7 @@ public class GStreamerSurfaceView extends SurfaceView implements SurfaceHolder.C
         //    pipeline = "udpsrc address=" + uri[0] + " port=" + uri[1] + " caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264\" ! rtph264depay  ! avdec_h264 ! tee name=t ! queue ! videomixer name=m sink_0::xpos=0 sink_1::xpos=640 ! videoconvert ! autovideosink sync=false t. ! queue ! m.";
         //else
         pipeline = "udpsrc port=" + uri[1] + " caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264\" ! rtph264depay  ! avdec_h264 ! videoconvert ! autovideosink sync=false";
-        //pipeline = "videotestsrc ! warptv ! autovideosink";
+        //pipeline = "videotestsrc ! agingtv ! autovideosink";
         Log.d("GStreamerSurfaceView", pipeline);
         nativeSetPipeline(pipeline);
     }
@@ -221,5 +234,17 @@ public class GStreamerSurfaceView extends SurfaceView implements SurfaceHolder.C
     public void stopPlayback() {
         if (pipeline_started)
             nativeStop();
+    }
+
+    public void addListener(GStreamerSurfaceListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(GStreamerSurfaceListener listener) {
+        listeners.remove(listener);
+    }
+
+    public void clearListeners() {
+        listeners.clear();
     }
 }

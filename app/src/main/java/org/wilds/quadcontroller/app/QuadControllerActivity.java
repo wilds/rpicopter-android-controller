@@ -29,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.wilds.gstreamer.GStreamerSurfaceListener;
 import org.wilds.gstreamer.GStreamerSurfaceView;
 import org.wilds.quadcontroller.app.communication.OnReceiveListener;
 import org.wilds.quadcontroller.app.communication.Protocol;
@@ -112,6 +113,32 @@ public class QuadControllerActivity extends Activity implements SharedPreference
         debugHUD = sharedPreferences.getBoolean("debug_hud", false);
 
         video = (GStreamerSurfaceView) findViewById(R.id.surface_view);
+        video.addListener(new GStreamerSurfaceListener() {
+            @Override
+            public void onError(int type, final String message) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(QuadControllerActivity.this, message, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onMessage(final String message) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(QuadControllerActivity.this, message, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onChangeStatus(int state) {
+
+            }
+        });
 
         streamingEnabled = sharedPreferences.getBoolean("streaming_enabled", true);
         streamingPort = Integer.parseInt(sharedPreferences.getString("tcp_port", "9000"));
