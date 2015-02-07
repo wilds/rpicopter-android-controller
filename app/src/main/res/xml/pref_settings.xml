@@ -23,9 +23,9 @@
             <EditTextPreference
                 android:dependency="streaming_enabled"
                 android:disableDependentsState="false"
-                android:key="tcp_port"
-                android:title="@string/pref_tcp_port_title"
-                android:defaultValue="@string/pref_tcp_port_value"
+                android:key="streaming_port"
+                android:title="@string/pref_streaming_port_title"
+                android:defaultValue="@string/pref_streaming_port_value"
                 android:selectAllOnFocus="true"
                 android:inputType="number"
                 android:singleLine="true"

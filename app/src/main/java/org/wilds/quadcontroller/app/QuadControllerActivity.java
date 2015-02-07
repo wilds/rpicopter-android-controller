@@ -18,15 +18,20 @@
 package org.wilds.quadcontroller.app;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import org.wilds.gstreamer.GStreamerSurfaceListener;
@@ -39,6 +44,7 @@ import org.wilds.quadcontroller.app.communication.packet.AltitudeTargetPacket;
 import org.wilds.quadcontroller.app.communication.packet.FlyModePacket;
 import org.wilds.quadcontroller.app.communication.packet.MotionPacket;
 import org.wilds.quadcontroller.app.communication.packet.Packet;
+import org.wilds.quadcontroller.app.communication.packet.StreamCameraPacket;
 import org.wilds.quadcontroller.app.communication.packet.TakePicturePacket;
 import org.wilds.quadcontroller.app.communication.packet.VideoPacket;
 import org.wilds.quadcontroller.app.joystick.DualJoystickView;
@@ -141,7 +147,7 @@ public class QuadControllerActivity extends Activity implements SharedPreference
         });
 
         streamingEnabled = sharedPreferences.getBoolean("streaming_enabled", true);
-        streamingPort = Integer.parseInt(sharedPreferences.getString("tcp_port", "9000"));
+        streamingPort = Integer.parseInt(sharedPreferences.getString("streaming_port", "9000"));
 
         overlayView = (OverlayView) findViewById(R.id.overlay_view);
 
@@ -168,15 +174,27 @@ public class QuadControllerActivity extends Activity implements SharedPreference
                     InetAddress quadcopter = (InetAddress) message;
                     Log.d("QuadController", quadcopter.getHostAddress());
                     protocol.connectToQuadcopter(quadcopter.getHostAddress());
-                    startVideoStreaming(quadcopter.getHostAddress());
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(QuadControllerActivity.this, R.string.connected, Toast.LENGTH_SHORT).show();
                         }
                     });
-                }
-                else if (type == Packet.TYPE_QUERY_STATUS) {
+
+                    Point displaySize = getDisplaySize();
+                    protocol.sendPacket(new StreamCameraPacket(StreamCameraPacket.Command.start, streamingPort, displaySize.x, displaySize.y));
+                } else if (type == Packet.TYPE_STREAM_CAMERA) {
+                    String values = (String) message;
+                    final String data[] = values.split(" ");
+                    if (!data[0].equals("OK")) {
+                        System.err.printf("Quadcopter cannot stream camera: %s", data[0]);
+                    } else {
+                        if(data[2].equals("start"))
+                            startVideoStreaming(protocol.getRemoteAddress());
+                        else if(data[2].equals("stop"))
+                            video.stopPlayback();
+                    }
+                } else if (type == Packet.TYPE_QUERY_STATUS) {
                     String values = (String) message;
                     final String data[] = values.split(" ");
                     if (!data[0].equals("status")) {
@@ -228,16 +246,27 @@ public class QuadControllerActivity extends Activity implements SharedPreference
         }
         overlayView.setWiFiData(linkQualitySignalEnabled ? linkQuality.getSignalLevel(6) : -1, linkQualitySpeedEnabled ? linkQuality.getLinkSpeed() : -1, linkQualityLagEnabled ? protocol.getLatency() : -1, true);
 
-        streamingEnabled = sharedPreferences.getBoolean("streaming_enabled", true);
+        boolean streamingChanged = false;
 
-        if (streamingPort != Integer.parseInt(sharedPreferences.getString("tcp_port", "9000"))) {
-            streamingPort = Integer.parseInt(sharedPreferences.getString("tcp_port", "9000"));
+        if (streamingEnabled != sharedPreferences.getBoolean("streaming_enabled", true)) {
+            streamingEnabled = sharedPreferences.getBoolean("streaming_enabled", true);
+            streamingChanged = true;
         }
 
-        if (streamingEnabled && protocol.isConnected())
-            startVideoStreaming(protocol.getRemoteAddress());
-        else
-            video.stopPlayback();
+        if (streamingPort != Integer.parseInt(sharedPreferences.getString("streaming_port", "9000"))) {
+            streamingPort = Integer.parseInt(sharedPreferences.getString("streaming_port", "9000"));
+            streamingChanged = true;
+        }
+
+        // TODO resolution preference
+
+        if (streamingChanged) {
+            if (streamingEnabled && protocol.isConnected()) {
+                // TODO send packet to server
+                startVideoStreaming(protocol.getRemoteAddress());
+            } else
+                video.stopPlayback();
+        }
     }
 
     private JoystickMovedListener _listenerLeft = new JoystickMovedListener() {
@@ -458,5 +487,17 @@ public class QuadControllerActivity extends Activity implements SharedPreference
                 }
             });
         }
+    }
+
+    protected Point getDisplaySize() {
+        WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        Point size = new Point();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            display.getSize(size);
+        } else {
+            size.set(display.getWidth(), display.getHeight());
+        }
+        return size;
     }
 }

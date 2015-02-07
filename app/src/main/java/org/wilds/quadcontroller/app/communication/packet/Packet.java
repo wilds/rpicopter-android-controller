@@ -34,7 +34,7 @@ public abstract class Packet {
     public static final String TYPE_ALTITUDE_HOLDER_ENABLE = "altitudeholderenabled";
     public static final String TYPE_ALTITUDE_TARGET = "altitudetarget";
     public static final String TYPE_FLYMODE = "flymode";
-
+    public static final String TYPE_STREAM_CAMERA = "stream";
 
     protected long id = -1;
     protected String type;
