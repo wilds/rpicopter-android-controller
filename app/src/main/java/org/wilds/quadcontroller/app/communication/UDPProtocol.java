@@ -46,6 +46,8 @@ public class UDPProtocol implements Protocol {
     protected Handler mHandler = new Handler();
     private final static int INTERVAL_HEARTBEAT = 1000 * 2;
     private final static int INTERVAL_QUERY_STATUS = 200;
+
+    private final static int PACKET_TIMEOUT = 5000;
     //
     protected DatagramSocket sendSocket;
     protected int sendPort = 58000;
@@ -57,6 +59,7 @@ public class UDPProtocol implements Protocol {
     protected ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(5, 10, 1, TimeUnit.SECONDS, mQueue);
 
     protected Map<Long, Packet> waitingForResponse = new ConcurrentHashMap<>();
+    protected int lostPacket = 0;
 
     protected Runnable mHandlerTaskHeartBeat = new Runnable() {
         @Override
@@ -70,6 +73,14 @@ public class UDPProtocol implements Protocol {
         public void run() {
             sendPacket(new QueryStatusPacket());
             mHandler.postDelayed(mHandlerTaskQueryStatus, INTERVAL_QUERY_STATUS);
+        }
+    };
+
+    protected Runnable mHandlerTaskCleanWaitingPackets = new Runnable() {
+        @Override
+        public void run() {
+            cleanWaitingPackets();
+            mHandler.postDelayed(mHandlerTaskQueryStatus, PACKET_TIMEOUT);
         }
     };
 
@@ -237,9 +248,11 @@ public class UDPProtocol implements Protocol {
     }
 
     protected void onConnected() {
+        lostPacket = 0;
         startHeartBeat();
         startQueryStatus();
         startListening();
+        startCleanWaitingPackets();
     }
 
     public void close() {
@@ -247,6 +260,7 @@ public class UDPProtocol implements Protocol {
         sendFakePacket();   //interrupt receive
         stopHeartBeat();
         stopQueryStatus();
+        stopCleanWaitingPackets();
         //sendSocket.close();
     }
 
@@ -284,5 +298,26 @@ public class UDPProtocol implements Protocol {
 
     public int getLatency() {
         return lag;
+    }
+
+    protected void startCleanWaitingPackets() {
+        mHandlerTaskQueryStatus.run();
+    }
+
+    protected void stopCleanWaitingPackets() {
+        mHandler.removeCallbacks(mHandlerTaskCleanWaitingPackets);
+    }
+
+    protected void cleanWaitingPackets() {
+        for (Long id : waitingForResponse.keySet()) {
+            if (id / 1000000 > System.currentTimeMillis() + PACKET_TIMEOUT) {
+                waitingForResponse.remove(id);
+                ++lostPacket;
+            }
+        }
+    }
+
+    public int getLostPacket() {
+        return lostPacket;
     }
 }
