@@ -215,7 +215,7 @@ public class GStreamerSurfaceView extends SurfaceView implements SurfaceHolder.C
         //if (stream_type==1)
         //    pipeline = "udpsrc address=" + uri[0] + " port=" + uri[1] + " caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264\" ! rtph264depay  ! avdec_h264 ! tee name=t ! queue ! videomixer name=m sink_0::xpos=0 sink_1::xpos=640 ! videoconvert ! autovideosink sync=false t. ! queue ! m.";
         //else
-        pipeline = "udpsrc port=" + uri[1] + " caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264\" ! rtph264depay ! avdec_h264 ! autovideosink sync=false";
+        pipeline = "udpsrc port=" + uri[1] + " caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264\" ! rtph264depay ! decodebin ! autovideosink sync=false";
         //pipeline = "videotestsrc ! autovideosink";
         Log.d("GStreamerSurfaceView", pipeline);
         nativeSetPipeline(pipeline);
