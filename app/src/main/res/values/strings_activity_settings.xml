@@ -28,5 +28,8 @@
     <string name="pref_wifi_speed_enabled_summary"></string>
     <string name="pref_wifi_latency_enabled_title">WiFi latency</string>
     <string name="pref_wifi_latency_enabled_summary"></string>
+    <string name="pref_joystickratio_category">Joystick</string>
+    <string name="pref_joystickratio_title">Joystick size %</string>
+    <string name="pref_joystickratio_summary"></string>
 
 </resources>

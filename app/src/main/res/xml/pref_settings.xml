@@ -81,6 +81,16 @@
                 android:icon="@android:drawable/ic_menu_view"/>
 
         </PreferenceCategory>
+
+        <PreferenceCategory android:title="@string/pref_joystickratio_category">
+            <EditTextPreference
+                android:key="joystick_scale"
+                android:title="@string/pref_joystickratio_title"
+                android:summary="@string/pref_joystickratio_summary"
+                android:defaultValue="100"
+                android:inputType="number"
+                />
+        </PreferenceCategory>
 <!--
         <PreferenceCategory android:title="@string/pref_debug_category" >
             <Preference

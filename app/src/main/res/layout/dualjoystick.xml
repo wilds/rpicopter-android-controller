@@ -1,25 +1,25 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root_view"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
     <org.wilds.gstreamer.GStreamerSurfaceView
         android:id="@+id/surface_view"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_gravity="center" />
 
     <org.wilds.quadcontroller.app.OverlayView
         android:id="@+id/overlay_view"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         android:paddingLeft="175dip"
         android:paddingRight="175dip"/>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:baselineAligned="false"
@@ -28,7 +28,7 @@
 
         <org.wilds.quadcontroller.app.joystick.DualJoystickView
             android:id="@+id/dualjoystickView"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="175dip"
             android:layout_gravity="center_horizontal" />
 <!--
